@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/" />
+  <Folder Name="/src/BuildingBlocks/Core/">
+    <Project Path="src/BuildingBlocks/Core/BuildingBlocks.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Tripory/">
+    <Project Path="src/Services/Tripory/Tripory.API/Tripory.API.csproj" />
+    <Project Path="src/Services/Tripory/Tripory.Application/Tripory.Application.csproj" />
+    <Project Path="src/Services/Tripory/Tripory.Domain/Tripory.Domain.csproj" />
+    <Project Path="src/Services/Tripory/Tripory.Infrastructure/Tripory.Infrastructure.csproj" />
+    <Project Path="src/Services/Tripory/Tripory.Persistence/Tripory.Persistence.csproj" />
+  </Folder>
+</Solution>
