@@ -1,4 +1,4 @@
-namespace BuildingBlocks.Core.Domains.Abstractions.Shared;
+namespace BuildingBlocks.Core.Abstractions.Shared;
 
 public class Error : IEquatable<Error>
 {
