@@ -17,28 +17,42 @@
 
 ---
 
+## 📊 Bảng Tiến Độ Tổng Quan (Execution Checklist)
+
+| Bước | Hạng mục | Trạng thái | Ghi chú |
+| :---: | :--- | :---: | :--- |
+| **01** | Khởi tạo Solution & 6 Projects CLI | `[x] Hoàn thành` | Đã scaffold 6 projects, cấu hình Net 10 |
+| **02** | Xây dựng `BuildingBlocks.Core` | `[x] Hoàn thành` | CQRS, Exceptions, PagedResult, Repository contracts |
+| **03** | Domain Layer (`Tripory.Domain` - User & Auth) | `[ ] ĐANG THỰC HIỆN` | Spec, User Aggregate Root, Role, VO Email, Enums |
+| **04** | Application Layer (UseCases & CQRS Handlers) | `[ ] Chờ duyệt` | Register, Login, RefreshToken, ChangePassword |
+| **05** | Persistence Layer (PostgreSQL EF Core) | `[ ] Chờ duyệt` | PostGIS setup, Fluent API mapping, Migrations |
+| **06** | Infrastructure Layer (JWT & BCrypt Hasher) | `[ ] Chờ duyệt` | BcryptPasswordHasher, JwtTokenService |
+| **07** | API Layer (Controllers & Composition Root) | `[ ] Chờ duyệt` | AuthController, Global Exception Handler, Swagger |
+
+---
+
 ## 🏗️ 2. Quy Trình 7 Bước Triển Khai "Từ Trong Ra Ngoài" (Inside-Out)
 
 ```
-[Bước 1: Khởi tạo Khung CLI]
-       │
-       ▼
-[Bước 2: BuildingBlocks.Core]
-       │
-       ▼
-[Bước 3: Domain Layer (User & Auth)]
-       │
-       ▼
-[Bước 4: Application Layer (CQRS UseCases)]
-       │
-       ▼
-[Bước 5: Persistence Layer (EF Core + PostgreSQL)]
-       │
-       ▼
-[Bước 6: Infrastructure Layer (JWT & Hasher)]
-       │
-       ▼
-[Bước 7: API Layer (Controllers & Middlewares)]
+[x] [Bước 1: Khởi tạo Khung CLI]
+          │
+          ▼
+[x] [Bước 2: BuildingBlocks.Core]
+          │
+          ▼
+[▶] [Bước 3: Domain Layer (User & Auth)]  <--- ĐANG Ở ĐÂY
+          │
+          ▼
+[ ] [Bước 4: Application Layer (CQRS UseCases)]
+          │
+          ▼
+[ ] [Bước 5: Persistence Layer (EF Core + PostgreSQL)]
+          │
+          ▼
+[ ] [Bước 6: Infrastructure Layer (JWT & Hasher)]
+          │
+          ▼
+[ ] [Bước 7: API Layer (Controllers & Middlewares)]
 ```
 
 ---
