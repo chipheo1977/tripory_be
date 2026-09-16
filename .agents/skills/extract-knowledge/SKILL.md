@@ -16,10 +16,10 @@ Kỹ năng này chịu trách nhiệm trích xuất các tri thức trọng yế
 Mọi thông tin được trích xuất phải được phân loại và ghi nhận vào đúng một trong các tệp sau:
 1. `ai-memories/architectural-decisions.md`: Quyết định kiến trúc, pattern (Clean Arch, DDD, CQRS), lý do chọn giải pháp, nguyên tắc phân tầng.
 2. `ai-memories/domain-insights.md`: Các business rules, invariants của Entity/VO, state machine, dữ liệu nghiệp vụ đối chiếu từ tài liệu BRD (`../tripory/docs`).
-3. `ai-memories/gotchas-and-bugs.md`: Các lỗi kỹ thuật (EF Core, PostGIS, MediatR pipeline, DI, build/runtime), nguyên nhân gốc rễ (Root Cause) và giải pháp xử lý.
-4. `ai-memories/INDEX.md`: Cập nhật mục lục tổng hợp nếu có chủ đề lớn mới phát sinh.
-
-5. `ai-memories/csharp-dotnet-concepts.md`: Các khái niệm chuyên sâu C# / .NET Runtime (Generic Variance, Memory/Span, Async/Await, Pattern Matching, Implicit/Explicit Operators...).
+3. `ai-memories/software-core-concepts.md`: Các nguyên lý kỹ nghệ phần mềm nền tảng (SOLID, Type Variance, Invariants, DRY, KISS, YAGNI, GRASP, Design Patterns tổng quát...).
+4. `ai-memories/csharp-dotnet-concepts.md`: Các khái niệm chuyên sâu C# / .NET Runtime (Generic Variance `in`/`out`, Memory/Span, Async/Await, Pattern Matching, Implicit/Explicit Operators...).
+5. `ai-memories/gotchas-and-bugs.md`: Các lỗi kỹ thuật (EF Core, PostGIS, MediatR pipeline, DI, build/runtime), nguyên nhân gốc rễ (Root Cause) và giải pháp xử lý.
+6. `ai-memories/INDEX.md`: Cập nhật mục lục tổng hợp nếu có chủ đề lớn mới phát sinh.
 ---
 
 ## Quy Trình 4 Bước Trích Xuất Tri Thức
@@ -28,6 +28,8 @@ Mọi thông tin được trích xuất phải được phân loại và ghi nh�
 Rà soát lại toàn bộ ngữ cảnh hội thoại hoặc phiên làm việc gần nhất để trích ra:
 * **Architecture:** Có pattern nào mới được áp dụng không? Có thỏa hiệp kỹ thuật (trade-off) nào vừa được quyết định không?
 * **Domain:** Có invariant nào vừa được định nghĩa (ví dụ: validation range của Value Object, trạng thái Entity chuyển đổi ra sao)?
+* **Software Engineering Principles:** Có nguyên lý thiết kế nào (SOLID - SRP/OCP/LSP/ISP/DIP, Design Pattern, Refactoring principle) vừa được áp dụng hoặc thảo luận không?
+* **C# / .NET:** Có khái niệm ngôn ngữ hoặc runtime chuyên sâu nào được sử dụng không?
 * **Gotchas/Bugs:** Có lỗi build, cấu hình sai, hoặc ngoại lệ runtime nào vừa giải quyết thành công không?
 
 ### Bước 2: Kiểm Tra Trùng Lặp (Deduplication Check)
@@ -56,6 +58,15 @@ Mỗi entry thêm mới cần tuân thủ cấu trúc sau:
 * **Tài liệu nguồn:** Trích dẫn BRD / Spec tại `../tripory/docs`.
 * **Quy tắc nghiệp vụ (Business Rules):** Các điều kiện ràng buộc, invariant bảo vệ bởi Entity / Value Object.
 * **Files liên quan:** Liên kết đến Entity, Value Object hoặc Domain Service.
+```
+
+#### Đối với Software Engineering Principles (`software-core-concepts.md`):
+```markdown
+## <Tên Nguyên Lý / Pattern> (ví dụ: SOLID - LSP)
+* **Phát biểu nguyên lý:** Định nghĩa ngắn gọn, chính xác.
+* **Bản chất cốt lõi:** Các quy tắc bắt buộc, invariant, điều kiện tham số/kết quả.
+* **Ví dụ Vi phạm (Anti-pattern):** Tình huống thực tế thường vi phạm và hệ quả.
+* **Ứng dụng trong Tripory:** Liên kết và đối chiếu trực tiếp vào codebase hiện tại.
 ```
 
 #### Đối với C# & .NET Concepts (`csharp-dotnet-concepts.md`):

@@ -1,4 +1,4 @@
-using BuildingBlocks.Core.Domains.Abstractions.Shared;
+using BuildingBlocks.Core.Abstractions.Shared;
 using MediatR;
 
 namespace BuildingBlocks.Core.CQRS;

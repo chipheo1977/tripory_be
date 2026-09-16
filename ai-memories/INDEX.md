@@ -11,6 +11,7 @@ Mục lục tổng hợp các tri thức, quyết định thiết kế và bài 
 | [architectural-decisions.md](./architectural-decisions.md) | Các quyết định kiến trúc cốt lõi, design patterns, nguyên tắc phân tầng và đánh đổi kỹ thuật. |
 | [domain-insights.md](./domain-insights.md) | Business logic, invariants, state transitions và thuật ngữ nghiệp vụ bám sát BRD. |
 | [csharp-dotnet-concepts.md](./csharp-dotnet-concepts.md) | Các khái niệm kỹ thuật chuyên sâu về C# (.NET Runtime, Generics, Memory, Async, Patterns...). |
+| [software-core-concepts.md](./software-core-concepts.md) | Các nguyên lý kỹ nghệ phần mềm nền tảng (SOLID, DRY, KISS, GRASP, Design Patterns...). |
 | [gotchas-and-bugs.md](./gotchas-and-bugs.md) | Các cạm bẫy kỹ thuật, lỗi đã gặp (EF Core, PostGIS, MediatR, DI...) và giải pháp xử lý. |
 
 ---
