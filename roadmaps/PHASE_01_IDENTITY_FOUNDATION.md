@@ -40,7 +40,7 @@
 [x] [Bước 2: BuildingBlocks.Core]
           │
           ▼
-[▶] [Bước 3: Domain Layer (User & Auth)]  <--- ĐANG Ở ĐÂY
+[x] [Bước 3: Domain Layer (User & Auth)]
           │
           ▼
 [ ] [Bước 4: Application Layer (CQRS UseCases)]
