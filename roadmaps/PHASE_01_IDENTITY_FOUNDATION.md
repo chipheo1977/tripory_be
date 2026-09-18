@@ -23,10 +23,10 @@
 | :---: | :--- | :---: | :--- |
 | **01** | Khởi tạo Solution & 6 Projects CLI | `[x] Hoàn thành` | Đã scaffold 6 projects, cấu hình Net 10 |
 | **02** | Xây dựng `BuildingBlocks.Core` | `[x] Hoàn thành` | CQRS, Exceptions, PagedResult, Repository contracts |
-| **03** | Domain Layer (`Tripory.Domain` - User & Auth) | `[ ] ĐANG THỰC HIỆN` | Spec, User Aggregate Root, Role, VO Email, Enums |
-| **04** | Application Layer (UseCases & CQRS Handlers) | `[ ] Chờ duyệt` | Register, Login, RefreshToken, ChangePassword |
-| **05** | Persistence Layer (PostgreSQL EF Core) | `[ ] Chờ duyệt` | PostGIS setup, Fluent API mapping, Migrations |
-| **06** | Infrastructure Layer (JWT & BCrypt Hasher) | `[ ] Chờ duyệt` | BcryptPasswordHasher, JwtTokenService |
+| **03** | Domain Layer (`Tripory.Domain` - User & Auth) | `[x] Hoàn thành` | Spec, User Aggregate Root, Role, VO Email, Enums |
+| **04** | Application Layer (UseCases & CQRS Handlers) | `[x] Hoàn thành` | Register, Login, RefreshToken, ChangePassword, UserProfile |
+| **05** | Persistence Layer (PostgreSQL EF Core) | `[x] Hoàn thành` | PostGIS setup, Fluent API mapping, UserRepository, UnitOfWork |
+| **06** | Infrastructure Layer (JWT & BCrypt Hasher) | `[ ] ĐANG THỰC HIỆN` | BcryptPasswordHasher, JwtTokenService |
 | **07** | API Layer (Controllers & Composition Root) | `[ ] Chờ duyệt` | AuthController, Global Exception Handler, Swagger |
 
 ---
@@ -43,13 +43,13 @@
 [x] [Bước 3: Domain Layer (User & Auth)]
           │
           ▼
-[ ] [Bước 4: Application Layer (CQRS UseCases)]
+[x] [Bước 4: Application Layer (CQRS UseCases)]
           │
           ▼
-[ ] [Bước 5: Persistence Layer (EF Core + PostgreSQL)]
+[x] [Bước 5: Persistence Layer (EF Core + PostgreSQL)]
           │
           ▼
-[ ] [Bước 6: Infrastructure Layer (JWT & Hasher)]
+[▶] [Bước 6: Infrastructure Layer (JWT & Hasher)]  <--- ĐANG Ở ĐÂY
           │
           ▼
 [ ] [Bước 7: API Layer (Controllers & Middlewares)]
