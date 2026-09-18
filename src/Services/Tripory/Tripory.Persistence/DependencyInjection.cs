@@ -23,6 +23,8 @@ public static class DependencyInjection
                 npgsqlOptions.UseNetTopologySuite(); // Kích hoạt PostGIS spatial support
                 npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
             });
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
         });
 
         services.AddScoped<IUserRepository, UserRepository>();

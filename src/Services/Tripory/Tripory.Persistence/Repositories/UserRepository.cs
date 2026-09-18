@@ -55,7 +55,11 @@ public class UserRepository : IUserRepository
 
     public Task UpdateAsync(User user, CancellationToken ct = default)
     {
-        _context.Users.Update(user);
+        var entry = _context.Entry(user);
+        if (entry.State == EntityState.Detached)
+        {
+            _context.Users.Update(user);
+        }
         return Task.CompletedTask;
     }
 }

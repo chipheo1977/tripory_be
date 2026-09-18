@@ -21,7 +21,6 @@ public class RefreshToken : EntityBase<Guid>
 
     internal RefreshToken(Guid userId, string token, DateTimeOffset expiresAt, string? createdByIp)
     {
-        Id = Guid.NewGuid();
         UserId = userId;
         Token = token;
         ExpiresAt = expiresAt;

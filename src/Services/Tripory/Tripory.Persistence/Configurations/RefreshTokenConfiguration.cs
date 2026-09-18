@@ -11,6 +11,7 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.ToTable("refresh_tokens", "identity");
 
         builder.HasKey(rt => rt.Id);
+        builder.Property(rt => rt.Id).ValueGeneratedOnAdd();
 
         builder.Property(rt => rt.Token)
             .HasMaxLength(256)
