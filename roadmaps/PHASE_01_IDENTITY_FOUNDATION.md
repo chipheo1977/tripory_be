@@ -27,7 +27,7 @@
 | **04** | Application Layer (UseCases & CQRS Handlers) | `[x] Hoàn thành` | Register, Login, RefreshToken, ChangePassword, UserProfile |
 | **05** | Persistence Layer (PostgreSQL EF Core) | `[x] Hoàn thành` | PostGIS setup, Fluent API mapping, UserRepository, UnitOfWork |
 | **06** | Infrastructure Layer (JWT & BCrypt Hasher) | `[x] Hoàn thành` | BcryptPasswordHasher, JwtTokenService, CurrentUserService |
-| **07** | API Layer (Controllers & Composition Root) | `[ ] ĐANG THỰC HIỆN` | AuthController, Global Exception Handler, Swagger |
+| **07** | API Layer (Controllers & Composition Root) | `[x] Hoàn thành` | AuthController, UsersController, GlobalExceptionHandler, Swagger, JWT Auth |
 
 ---
 
@@ -52,7 +52,7 @@
 [x] [Bước 6: Infrastructure Layer (JWT & Hasher)]
           │
           ▼
-[▶] [Bước 7: API Layer (Controllers & Middlewares)]  <--- ĐANG Ở ĐÂY
+[x] [Bước 7: API Layer (Controllers & Middlewares)]
 ```
 
 ---
