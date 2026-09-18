@@ -26,8 +26,8 @@
 | **03** | Domain Layer (`Tripory.Domain` - User & Auth) | `[x] Hoàn thành` | Spec, User Aggregate Root, Role, VO Email, Enums |
 | **04** | Application Layer (UseCases & CQRS Handlers) | `[x] Hoàn thành` | Register, Login, RefreshToken, ChangePassword, UserProfile |
 | **05** | Persistence Layer (PostgreSQL EF Core) | `[x] Hoàn thành` | PostGIS setup, Fluent API mapping, UserRepository, UnitOfWork |
-| **06** | Infrastructure Layer (JWT & BCrypt Hasher) | `[ ] ĐANG THỰC HIỆN` | BcryptPasswordHasher, JwtTokenService |
-| **07** | API Layer (Controllers & Composition Root) | `[ ] Chờ duyệt` | AuthController, Global Exception Handler, Swagger |
+| **06** | Infrastructure Layer (JWT & BCrypt Hasher) | `[x] Hoàn thành` | BcryptPasswordHasher, JwtTokenService, CurrentUserService |
+| **07** | API Layer (Controllers & Composition Root) | `[ ] ĐANG THỰC HIỆN` | AuthController, Global Exception Handler, Swagger |
 
 ---
 
@@ -49,10 +49,10 @@
 [x] [Bước 5: Persistence Layer (EF Core + PostgreSQL)]
           │
           ▼
-[▶] [Bước 6: Infrastructure Layer (JWT & Hasher)]  <--- ĐANG Ở ĐÂY
+[x] [Bước 6: Infrastructure Layer (JWT & Hasher)]
           │
           ▼
-[ ] [Bước 7: API Layer (Controllers & Middlewares)]
+[▶] [Bước 7: API Layer (Controllers & Middlewares)]  <--- ĐANG Ở ĐÂY
 ```
 
 ---
