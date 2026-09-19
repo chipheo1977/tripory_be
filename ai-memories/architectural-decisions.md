@@ -27,4 +27,48 @@ Ghi nhận các quyết định kiến trúc, mẫu thiết kế và chuẩn cô
   * [`IJwtTokenService.cs`]
   * [`User.cs`]
 
+---
+
+### [ADR-002] Tách Biệt Lệnh & Truy Vấn Ở Cấp Độ Code (Logical CQRS với MediatR)
+* **Ngày ghi nhận:** 2026-09-19
+* **Bối cảnh (Context):** 
+  * Dự án cần phân tách rõ ràng giữa các hành vi thay đổi trạng thái (Ghi) và các hành vi đọc dữ liệu (Đọc) để tối ưu hiệu năng, bảo mật và khả năng bảo trì.
+  * Việc áp dụng Full CQRS (2 Database riêng biệt cho Đọc và Ghi kết hợp Event Sourcing) ở giai đoạn khởi đầu dự án là quá phức tạp (Over-engineering), tốn kém chi phí vận hành và rủi ro bất đồng bộ dữ liệu (Eventual Consistency).
+* **Quyết định (Decision):** 
+  * Áp dụng **Logical CQRS (CQRS mức logic code)**:
+    1. Định nghĩa các Marker Interfaces trừu tượng hóa MediatR: `ICommand`, `ICommand<TResponse>` và `IQuery<TResponse>`.
+    2. Tổ chức UseCases theo Feature Vertical Slice: tách hẳn thư mục `Commands/` và `Queries/`.
+    3. Phía Command được phép mở Transaction, gọi Domain Entity áp rules và gọi `_unitOfWork.SaveChangesAsync`.
+    4. Phía Query chỉ đọc dữ liệu, map trực tiếp sang DTO phẳng, không bao giờ gọi `SaveChanges` hay làm đổi trạng thái DB.
+    5. Cả hai luồng tạm thời chia sẻ chung 1 cơ sở dữ liệu PostgreSQL.
+* **Đánh đổi (Trade-offs):**
+  * *Ưu điểm:* Cấu trúc code sạch sẽ, rõ ràng ý định (Intent), dễ mở rộng thêm Caching behavior cho Query hoặc Transaction behavior cho Command; sẵn sàng tách Database vật lý sau này nếu tải đọc tăng đột biến mà không cần viết lại Application layer.
+  * *Nhược điểm:* Tăng số lượng file (mỗi thao tác cần 1 Command/Query, 1 Handler, 1 Response DTO).
+* **Files liên quan:**
+  * [`ICommand.cs`]
+  * [`IQuery.cs`]
+  * [`RegisterCommandHandler.cs`]
+  * [`GetCurrentUserProfileQueryHandler.cs`]
+
+---
+
+### [ADR-003] Ranh Giới Aggregate Root & Quy Tắc Cấp Hạt Của Repository Trong DDD
+* **Ngày ghi nhận:** 2026-09-19
+* **Bối cảnh (Context):** 
+  * Một đối tượng nghiệp vụ thường gồm nhiều bảng quan hệ (vd: `User` có nhiều `UserRole` và nhiều `RefreshToken`).
+  * Nếu tạo Repository cho từng bảng nhỏ (`RefreshTokenRepository`, `UserRoleRepository`), code bên ngoài có thể tự do thêm/sửa/xóa các bản ghi con mà bỏ qua các quy tắc nghiệp vụ bất biến của User (vd: thêm token mà không kiểm tra User bị ban, hoặc xóa token mà không theo dõi chuỗi rotation).
+* **Quyết định (Decision):** 
+  * Áp dụng nghiêm ngặt quy tắc **Aggregate Root Boundary** của DDD:
+    1. Chỉ có Aggregate Root (`User`) mới được phép có Repository ([`IUserRepository.cs`]).
+    2. Các thực thể phụ thuộc (`RefreshToken`, `UserRole`) được đóng gói hoàn toàn bên trong Aggregate: ẩn constructor và methods dưới mức truy cập `internal`.
+    3. Mọi thao tác thêm, thu hồi token hay gán quyền đều phải được thực thi thông qua phương thức nghiệp vụ trên `User`.
+* **Đánh đổi (Trade-offs):**
+  * *Ưu điểm:* Bảo toàn 100% tính toàn vẹn dữ liệu và invariants trong cùng 1 Transaction; ngăn chặn hoàn toàn việc can thiệp rác vào database từ các tầng ngoài.
+  * *Nhược điểm:* Khi cần cập nhật 1 token con, hệ thống phải nạp cả Aggregate Root `User` lên bộ nhớ (Change Tracker), đòi hỏi cấu hình EF Core kỹ lưỡng (Backing fields).
+* **Files liên quan:**
+  * [`User.cs`]
+  * [`RefreshToken.cs`]
+  * [`IUserRepository.cs`]
+
+
 

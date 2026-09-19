@@ -57,7 +57,40 @@ Tài liệu đúc kết các khái niệm kỹ thuật chuyên sâu về C#, .NE
      * Người dùng có vừa đổi mật khẩu hoặc bấm *"Đăng xuất khỏi mọi thiết bị"* hay không (lúc này `RefreshToken` trong DB đã bị vô hiệu hóa).
   4. **Tối ưu hiệu năng truy vấn Database (Index Lookup):** Tra cứu theo `UserId` (Khóa chính / Clustered Index $O(1)$ hoặc B-Tree) luôn nhanh hơn nhiều so với việc quét tìm một chuỗi string `RefreshToken` ngẫu nhiên trong toàn bộ bảng dữ liệu.
 * **Cạm bẫy bảo mật tối quan trọng (Security Gotcha):**
-  * Khi tắt kiểm tra hạn sử dụng (`ValidateLifetime = false`), **BẮT BUỘC** phải duy trì kiểm tra tính toàn vẹn của chữ ký: `ValidateIssuerSigningKey = true` cùng thuật toán ký gốc (`SecurityAlgorithms.HmacSha256`).
   * Tuyệt đối không cho phép bỏ qua chữ ký số, vì kẻ tấn công có thể lợi dụng điều này để làm giả một JWT chứa `UserId` của nạn nhân/Admin mà không cần biết Secret Key của hệ thống.
+
+---
+
+## 5. .NET Service Lifetimes: Transient, Scoped, Singleton
+
+* **Codebase reference:** 
+  * [`Persistence/DependencyInjection.cs`]
+  * [`Infrastructure/DependencyInjection.cs`]
+* **Khái niệm:**
+  * `Microsoft.Extensions.DependencyInjection` quản lý vòng đời đối tượng thông qua 3 chế độ cấp phát:
+    1. **`Transient` (`AddTransient`):** Tạo mới một instance độc lập mỗi lần có yêu cầu inject. Thích hợp cho các dịch vụ nhẹ, không lưu trữ trạng thái (Stateless) như Validators.
+    2. **`Scoped` (`AddScoped`):** Tạo duy nhất 1 instance cho mỗi phạm vi (Scope - thông thường là 1 HTTP Request). Tất cả các class cùng tham gia xử lý 1 request sẽ dùng chung instance này. Khi HTTP request kết thúc, container tự động gọi `Dispose()` để giải phóng tài nguyên.
+    3. **`Singleton` (`AddSingleton`):** Tạo duy nhất 1 instance xuyên suốt vòng đời của toàn bộ ứng dụng (từ lúc server bật đến khi tắt).
+* **Tại sao áp dụng trong Tripory:**
+  * **Tại sao `DbContext`, `UserRepository`, `UnitOfWork` bắt buộc phải là `Scoped`?
+    * Để đảm bảo tất cả các thao tác dữ liệu trong cùng một HTTP Request chia sẻ chung một `ChangeTracker` của EF Core, giúp commit dữ liệu nguyên khối (Atomic Transaction) và tự động đóng connection khi request hoàn tất.
+  * **Tại sao `BcryptPasswordHasher` và `JwtTokenService` lại là `Singleton`?**
+    * Vì chúng là các dịch vụ xử lý thuần túy (Pure computation, Stateless, Thread-safe). Tái sử dụng 1 instance duy nhất giúp tiết kiệm chi phí cấp phát bộ nhớ (Garbage Collector) và CPU.
+* **Cạm bẫy vòng đời (Captive Dependency Gotcha):**
+  * Tuyệt đối không inject một dịch vụ `Scoped` vào một dịch vụ `Singleton`. Điều này sẽ biến dịch vụ `Scoped` thành `Singleton` ngoài ý muốn (Captive Dependency), gây rò rỉ bộ nhớ (Memory Leak) và lỗi xung đột đa luồng trên DbContext.
+
+---
+
+## 6. Assembly Scanning trong .NET (Reflection-based DI Registration)
+
+* **Codebase reference:** [`Tripory.Application/DependencyInjection.cs`]
+* **Khái niệm:**
+  * Thay vì phải đăng ký thủ công từng CommandHandler, QueryHandler, hoặc Validator vào `IServiceCollection`, ta sử dụng kỹ thuật quét Assembly (Assembly Scanning) qua Reflection.
+  * `services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));`
+  * `services.AddValidatorsFromAssembly(assembly);`
+* **Lợi ích kỹ thuật:**
+  * **Tuân thủ Open-Closed Principle (OCP):** Khi lập trình viên tạo thêm UseCase mới (`CreateItineraryCommand`, `CreateItineraryCommandHandler`), hệ thống tự động nhận diện và đăng ký vào DI Container mà không cần mở file cấu hình DI để sửa.
+  * **Đăng ký Open Generic Behaviors:** Hỗ trợ đăng ký pipeline xử lý xuyên suốt cho mọi Command/Query bằng cú pháp `cfg.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));`.
+
 
 
