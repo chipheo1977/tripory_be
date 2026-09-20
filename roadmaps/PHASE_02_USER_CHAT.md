@@ -47,7 +47,7 @@
 ## 🏗️ 3. Quy Trình Triển Khai "Từ Trong Ra Ngoài" (Inside-Out) Cho Phase 02
 
 ```
-[ ] [Bước 1: Domain Layer (Module Chat Entities & Invariants)]
+[x] [Bước 1: Domain Layer (Module Chat Entities & Invariants)]
               │
               ▼
 [ ] [Bước 2: Application Layer (UseCases, CQRS Handlers & SignalR Ports)]
