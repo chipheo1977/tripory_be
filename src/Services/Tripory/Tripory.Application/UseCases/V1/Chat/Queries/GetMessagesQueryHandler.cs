@@ -38,7 +38,7 @@ public class GetMessagesQueryHandler : IQueryHandler<GetMessagesQuery, IReadOnly
         if (conversation.User1Id != currentUserId && conversation.User2Id != currentUserId)
             return Result.Failure<IReadOnlyList<ChatMessageDto>>(new Error("Chat.Forbidden", "Bạn không có quyền truy cập vào đoạn chat này."));
 
-        var messages = await _chatMessageRepository.GetMessagesByConversationAsync(
+        var messages = await _chatMessageRepository.GetConversationMessagesAsync(
             request.ConversationId, request.Page, request.PageSize, ct);
 
         var dtos = messages.Select(m => new ChatMessageDto(

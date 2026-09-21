@@ -14,4 +14,5 @@ public interface IChatMessageRepository
     Task AddAsync(ChatMessage message, CancellationToken ct = default);
     Task UpdateAsync(ChatMessage message, CancellationToken ct = default);
     Task<IReadOnlyList<ChatMessage>> GetUnreadMessagesAsync(Guid conversationId, Guid receiverId, CancellationToken ct = default);
+    Task UpdateRangeAsync(IEnumerable<ChatMessage> messages, CancellationToken ct = default);
 }

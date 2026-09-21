@@ -38,9 +38,22 @@
 
 | Milestone | Nội dung trọng tâm | Trạng thái | Ghi chú |
 | :---: | :--- | :---: | :--- |
-| **2.1** | **Chat Core (Text 1-1, Hub Realtime & Read Receipt)** | `[ ] Đang chuẩn bị` | Entities, CQRS, SignalR Hub, Postgres Tables |
+| **2.1** | **Chat Core (Text 1-1, Hub Realtime & Read Receipt)** | `[~] Đang triển khai` | Đã xong Domain & Application, đang làm Bước 3: Persistence |
 | **2.2** | **Voice Messages 120s & MinIO Storage** | `[ ] Chờ thực hiện` | MinIO Docker, Upload Audio API, Voice metadata |
 | **2.3** | **Audio Call 1-1 & WebRTC Signaling** | `[ ] Chờ thực hiện` | Signaling Hub, 5-State Machine, Call Log |
+
+---
+
+## 📊 Bảng Tiến Độ Tổng Quan (Execution Checklist)
+
+| Bước | Hạng mục | Trạng thái | Ghi chú |
+| :---: | :--- | :---: | :--- |
+| **01** | Domain Layer (`Tripory.Domain` - Module Chat) | `[x] Hoàn thành` | `Conversation`, `ChatMessage`, Enums, `CallLogData`, Invariants |
+| **02** | Application Layer (CQRS UseCases & Hub Ports) | `[x] Hoàn thành` | Commands, Queries, Handlers, Validators, DTOs, Ports |
+| **03** | Persistence Layer (PostgreSQL EF Core) | `[ ] ĐANG THỰC HIỆN` | Configurations, `ApplicationDbContext`, Repositories, Migrations |
+| **04** | Infrastructure Layer (SignalR & MinIO) | `[ ] Chờ thực hiện` | `ChatHub`, `MinioAudioStorageService`, Realtime Notifications |
+| **05** | API Layer (REST Endpoints & Hub Mapping) | `[ ] Chờ thực hiện` | `ChatController`, Hub route `/hubs/chat`, CORS credentials |
+| **06** | Verification & End-to-End Testing | `[ ] Chờ thực hiện` | Test 2 session chat realtime, Voice playback, WebRTC Call |
 
 ---
 
@@ -50,10 +63,10 @@
 [x] [Bước 1: Domain Layer (Module Chat Entities & Invariants)]
               │
               ▼
-[ ] [Bước 2: Application Layer (UseCases, CQRS Handlers & SignalR Ports)]
+[x] [Bước 2: Application Layer (UseCases, CQRS Handlers & SignalR Ports)]
               │
               ▼
-[ ] [Bước 3: Persistence Layer (Fluent API, DbContext & Migration Chat Tables)]
+[ ] [Bước 3: Persistence Layer (Fluent API, DbContext & Migration Chat Tables)] ◄── [ĐANG THỰC HIỆN]
               │
               ▼
 [ ] [Bước 4: Infrastructure Layer (SignalR ChatHub & MinIO Audio Storage)]
