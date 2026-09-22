@@ -50,8 +50,8 @@
 | :---: | :--- | :---: | :--- |
 | **01** | Domain Layer (`Tripory.Domain` - Module Chat) | `[x] Hoàn thành` | `Conversation`, `ChatMessage`, Enums, `CallLogData`, Invariants |
 | **02** | Application Layer (CQRS UseCases & Hub Ports) | `[x] Hoàn thành` | Commands, Queries, Handlers, Validators, DTOs, Ports |
-| **03** | Persistence Layer (PostgreSQL EF Core) | `[ ] ĐANG THỰC HIỆN` | Configurations, `ApplicationDbContext`, Repositories, Migrations |
-| **04** | Infrastructure Layer (SignalR & MinIO) | `[ ] Chờ thực hiện` | `ChatHub`, `MinioAudioStorageService`, Realtime Notifications |
+| **03** | Persistence Layer (PostgreSQL EF Core) | `[x] Hoàn thành` | Configurations, `ApplicationDbContext`, Repositories, Migrations |
+| **04** | Infrastructure Layer (SignalR & MinIO) | `[ ] ĐANG THỰC HIỆN` | `ChatHub`, `MinioAudioStorageService`, Realtime Notifications |
 | **05** | API Layer (REST Endpoints & Hub Mapping) | `[ ] Chờ thực hiện` | `ChatController`, Hub route `/hubs/chat`, CORS credentials |
 | **06** | Verification & End-to-End Testing | `[ ] Chờ thực hiện` | Test 2 session chat realtime, Voice playback, WebRTC Call |
 
@@ -66,10 +66,10 @@
 [x] [Bước 2: Application Layer (UseCases, CQRS Handlers & SignalR Ports)]
               │
               ▼
-[ ] [Bước 3: Persistence Layer (Fluent API, DbContext & Migration Chat Tables)] ◄── [ĐANG THỰC HIỆN]
+[x] [Bước 3: Persistence Layer (Fluent API, DbContext & Migration Chat Tables)]
               │
               ▼
-[ ] [Bước 4: Infrastructure Layer (SignalR ChatHub & MinIO Audio Storage)]
+[▶] [Bước 4: Infrastructure Layer (SignalR ChatHub & MinIO Audio Storage)] ◄── [TIẾP THEO]
               │
               ▼
 [ ] [Bước 5: API Layer (ChatController, REST History, SignalR Hub Mapping)]

@@ -16,7 +16,7 @@ public interface IChatNotificationService
     );
 
     // Cập nhật lại danh sách hội thoại của người nhận (cập nhật tin cuối, tăng unread count)
-    Task SendConversationUpdateNotificationAsync(
+    Task SendConversationUpdatedNotificationAsync(
         Guid recipientId,
         ConversationDto conversation,
         CancellationToken ct = default
