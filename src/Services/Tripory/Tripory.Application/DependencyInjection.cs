@@ -1,4 +1,3 @@
-// @TODO: cần xem giải thích file này.
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;

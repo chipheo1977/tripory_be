@@ -34,7 +34,7 @@ public class Conversation : EntityAuditBase<Guid>, IAggregateRoot
             return Result.Failure<Conversation>(new Error("Conversation.SelfChatNotAllowed", "Không thể tự tạo cuộc hội thoại với chính mình."));
 
         // Chuẩn hóa: User1Id luôn có giá trị so sánh nhỏ hơn User2Id
-        var (u1, u2) = userA.CompareTo(userB) < 0 ? (userA, userB) : (userB, userA);
+        var (u1, u2) = NormalizeParticipants(userA, userB);
 
         var conversation = new Conversation
         {
@@ -97,9 +97,15 @@ public class Conversation : EntityAuditBase<Guid>, IAggregateRoot
         return currentUserId == User1Id ? UnreadCountUser1 : UnreadCountUser2;
     }
 
-    // Kiểm tra xem người dùng có phải là thành viên của cuộc hội thoại hay không. Sửa hàng loạt sau.
+    // @TODO: Kiểm tra xem người dùng có phải là thành viên của cuộc hội thoại hay không. Sửa hàng loạt sau.
     // public bool IsParticipant(Guid userId)
     // {
     //     return userId == User1Id || userId == User2Id;
     // }
+
+    // Single Source of Truth cho quy tắc chuẩn hóa cặp người dùng
+    public static (Guid user1Id, Guid user2Id) NormalizeParticipants(Guid userA, Guid userB)
+    {
+        return userA.CompareTo(userB) < 0 ? (userA, userB) : (userB, userA);
+    }
 }

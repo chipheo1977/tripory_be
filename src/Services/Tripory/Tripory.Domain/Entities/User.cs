@@ -20,7 +20,7 @@ public class User : EntityAuditBase<Guid>, IAggregateRoot
     public UserStatus Status { get; private set; } = UserStatus.Active;
     public string? BannedReason { get; private set; }
 
-    // @TODO: SocialLinks & TravelPreferences sẽ được bổ sung ở giai đoạn tiếp.
+    // SocialLinks & TravelPreferences sẽ được bổ sung ở giai đoạn tiếp.
 
     private readonly List<UserRole> _userRoles = new();
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();

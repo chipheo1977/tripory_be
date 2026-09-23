@@ -5,6 +5,8 @@ using Tripory.Infrastructure.Configurations;
 using Tripory.Infrastructure.Implementations.Security;
 using Tripory.Infrastructure.Implementations.Realtime;
 using Tripory.Application.Abstractions.Realtime;
+using Tripory.Application.Abstractions.Storage;
+using Tripory.Infrastructure.Implementations.Storage;
 
 
 namespace Tripory.Infrastructure;
@@ -15,19 +17,23 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Bind JwtOptions
+        // 1. Bind JwtOptions
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
-        // HttpContextAccessor
+        // 2. HttpContextAccessor
         services.AddHttpContextAccessor();
 
-        // Security Services
+        // 3. Security Services
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
-
-        // Realtime Services
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        // 4. SignalR & Realtime Communication
+        services.AddSignalR();
         services.AddScoped<IChatNotificationService, ChatNotificationService>();
+
+        // 5. Audio / File Storage Service
+        services.AddScoped<IAudioStorageService, LocalAudioStorageService>();
 
         return services;
     }

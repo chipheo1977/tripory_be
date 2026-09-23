@@ -26,9 +26,7 @@ public class ConversationRepository : IConversationRepository
 
     public async Task<Conversation?> GetByUsersAsync(Guid userA, Guid userB, CancellationToken ct = default)
     {
-        // Chuẩn hóa theo cùng quy tắc u1 < u2
-        // @TODO: Đây là quy tắc, cân nhắc refactor sau.
-        var (u1, u2) = userA.CompareTo(userB) < 0 ? (userA, userB) : (userB, userA);
+        var (u1, u2) = Conversation.NormalizeParticipants(userA, userB);
 
         return await _context.Conversations
             .FirstOrDefaultAsync(c => c.User1Id == u1 && c.User2Id == u2, ct);

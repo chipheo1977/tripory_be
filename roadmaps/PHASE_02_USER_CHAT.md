@@ -69,10 +69,10 @@
 [x] [Bước 3: Persistence Layer (Fluent API, DbContext & Migration Chat Tables)]
               │
               ▼
-[▶] [Bước 4: Infrastructure Layer (SignalR ChatHub & MinIO Audio Storage)] ◄── [TIẾP THEO]
+[x] [Bước 4: Infrastructure Layer (SignalR ChatHub & MinIO Audio Storage)]
               │
               ▼
-[ ] [Bước 5: API Layer (ChatController, REST History, SignalR Hub Mapping)]
+[ ] [Bước 5: API Layer (ChatController, REST History, SignalR Hub Mapping)]◄── [TIẾP THEO]
               │
               ▼
 [ ] [Bước 6: Verification & End-to-End Testing (2 User Realtime Session)]
