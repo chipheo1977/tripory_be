@@ -51,8 +51,8 @@
 | **01** | Domain Layer (`Tripory.Domain` - Module Chat) | `[x] Hoàn thành` | `Conversation`, `ChatMessage`, Enums, `CallLogData`, Invariants |
 | **02** | Application Layer (CQRS UseCases & Hub Ports) | `[x] Hoàn thành` | Commands, Queries, Handlers, Validators, DTOs, Ports |
 | **03** | Persistence Layer (PostgreSQL EF Core) | `[x] Hoàn thành` | Configurations, `ApplicationDbContext`, Repositories, Migrations |
-| **04** | Infrastructure Layer (SignalR & MinIO) | `[ ] ĐANG THỰC HIỆN` | `ChatHub`, `MinioAudioStorageService`, Realtime Notifications |
-| **05** | API Layer (REST Endpoints & Hub Mapping) | `[ ] Chờ thực hiện` | `ChatController`, Hub route `/hubs/chat`, CORS credentials |
+| **04** | Infrastructure Layer (SignalR & MinIO) | `[x] Hoàn thành` | `ChatHub`, `LocalAudioStorageService`, `ChatNotificationService` |
+| **05** | API Layer (REST Endpoints & Hub Mapping) | `[ ] ĐANG THỰC HIỆN` | `ChatController`, Hub route `/hubs/chat`, CORS credentials |
 | **06** | Verification & End-to-End Testing | `[ ] Chờ thực hiện` | Test 2 session chat realtime, Voice playback, WebRTC Call |
 
 ---
