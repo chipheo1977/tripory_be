@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Domain.Entities;
+using Tripory.Domain.Enums;
 using Tripory.Domain.ValueObjects;
 
 namespace Tripory.Persistence.Repositories;
@@ -61,5 +62,38 @@ public class UserRepository : IUserRepository
             _context.Users.Update(user);
         }
         return Task.CompletedTask;
+    }
+
+    public async Task<IReadOnlyList<User>> SearchUsersAsync(string? search = null, int limit = 50, CancellationToken ct = default)
+    {
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            var handleTerm = term.StartsWith('@') ? term[1..] : term;
+            var pattern = $"%{term}%";
+            var handlePattern = $"%{handleTerm}%";
+
+            return await _context.Users
+                .FromSqlInterpolated($"""
+                    SELECT * FROM identity.users 
+                    WHERE "Status" <> 3 
+                    AND (
+                        "FullName" ILIKE {pattern} 
+                        OR "Handle" ILIKE {handlePattern} 
+                        OR "Email" ILIKE {pattern}
+                    )
+                    ORDER BY "CreatedAt" DESC
+                    LIMIT {limit}
+                """)
+                .Include(u => u.UserRoles)
+                .ToListAsync(ct);
+        }
+
+        return await _context.Users
+            .Include(u => u.UserRoles)
+            .Where(u => u.Status != UserStatus.Banned)
+            .OrderByDescending(u => u.CreatedAt)
+            .Take(limit)
+            .ToListAsync(ct);
     }
 }

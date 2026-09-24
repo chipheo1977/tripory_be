@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tripory.API.Common.Responses;
+using Tripory.Application.Common.Models;
 using Tripory.Application.UseCases.V1.Users.Commands;
 using Tripory.Application.UseCases.V1.Users.Queries;
 using Tripory.Application.UseCases.V1.Users.Responses;
@@ -17,6 +18,20 @@ public class UsersController : ApiController
         : base(sender)
     {
         _logger = logger;
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<UserDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetUsers([FromQuery] string? search, [FromQuery] int limit = 50, CancellationToken ct = default)
+    {
+        _logger.LogInformation("Người dùng yêu cầu lấy danh sách user với search: {Search}, limit: {Limit}", search, limit);
+
+        var result = await Sender.Send(new GetUsersQuery(search, limit), ct);
+        if (result.IsFailure)
+            return HandlerFailure(result);
+
+        return Ok(ApiResponse<IReadOnlyList<UserDto>>.Success(result.Value));
     }
 
     [HttpGet("me")]

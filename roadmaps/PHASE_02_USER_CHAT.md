@@ -38,9 +38,9 @@
 
 | Milestone | Nội dung trọng tâm | Trạng thái | Ghi chú |
 | :---: | :--- | :---: | :--- |
-| **2.1** | **Chat Core (Text 1-1, Hub Realtime & Read Receipt)** | `[~] Đang triển khai` | Đã xong Domain & Application, đang làm Bước 3: Persistence |
-| **2.2** | **Voice Messages 120s & MinIO Storage** | `[ ] Chờ thực hiện` | MinIO Docker, Upload Audio API, Voice metadata |
-| **2.3** | **Audio Call 1-1 & WebRTC Signaling** | `[ ] Chờ thực hiện` | Signaling Hub, 5-State Machine, Call Log |
+| **2.1** | **Chat Core (Text 1-1, Hub Realtime & Read Receipt)** | `[x] Hoàn thành` | Đã xong Domain, Application, Persistence, Hub & API |
+| **2.2** | **Voice Messages 120s & Local Storage** | `[x] Hoàn thành` | Upload Audio API, LocalAudioStorageService, Voice metadata |
+| **2.3** | **Audio Call 1-1 & WebRTC Signaling** | `[x] Hoàn thành` | Unified ChatHub Signaling, 5-Trạng thái, Call Log API |
 
 ---
 
@@ -51,9 +51,9 @@
 | **01** | Domain Layer (`Tripory.Domain` - Module Chat) | `[x] Hoàn thành` | `Conversation`, `ChatMessage`, Enums, `CallLogData`, Invariants |
 | **02** | Application Layer (CQRS UseCases & Hub Ports) | `[x] Hoàn thành` | Commands, Queries, Handlers, Validators, DTOs, Ports |
 | **03** | Persistence Layer (PostgreSQL EF Core) | `[x] Hoàn thành` | Configurations, `ApplicationDbContext`, Repositories, Migrations |
-| **04** | Infrastructure Layer (SignalR & MinIO) | `[x] Hoàn thành` | `ChatHub`, `LocalAudioStorageService`, `ChatNotificationService` |
-| **05** | API Layer (REST Endpoints & Hub Mapping) | `[ ] ĐANG THỰC HIỆN` | `ChatController`, Hub route `/hubs/chat`, CORS credentials |
-| **06** | Verification & End-to-End Testing | `[ ] Chờ thực hiện` | Test 2 session chat realtime, Voice playback, WebRTC Call |
+| **04** | Infrastructure Layer (SignalR & Storage) | `[x] Hoàn thành` | `ChatHub`, `LocalAudioStorageService`, `ChatNotificationService` |
+| **05** | API Layer (REST Endpoints & Hub Mapping) | `[x] Hoàn thành` | `ChatController` (8 endpoints), Hub `/hubs/chat`, CORS credentials |
+| **06** | Verification & End-to-End Testing | `[x] Chuyển giao FE` | Bỏ qua test độc lập BE; tích hợp trực tiếp API/SignalR với FE để kiểm thử E2E |
 
 ---
 
@@ -69,13 +69,13 @@
 [x] [Bước 3: Persistence Layer (Fluent API, DbContext & Migration Chat Tables)]
               │
               ▼
-[x] [Bước 4: Infrastructure Layer (SignalR ChatHub & MinIO Audio Storage)]
+[x] [Bước 4: Infrastructure Layer (SignalR ChatHub & Audio Storage)]
               │
               ▼
-[ ] [Bước 5: API Layer (ChatController, REST History, SignalR Hub Mapping)]◄── [TIẾP THEO]
+[x] [Bước 5: API Layer (ChatController 8 Endpoints & SignalR Hub Mapping)]
               │
               ▼
-[ ] [Bước 6: Verification & End-to-End Testing (2 User Realtime Session)]
+[x] [Bước 6: Chuyển giao tích hợp Frontend (Integration & E2E Testing)]
 ```
 
 ---

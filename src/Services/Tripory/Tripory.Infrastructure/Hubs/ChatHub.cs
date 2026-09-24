@@ -71,6 +71,12 @@ public class ChatHub : Hub
     /// </summary>
     public async Task CallUser(string targetUserId, object offer)
     {
+        if (string.IsNullOrWhiteSpace(targetUserId))
+        {
+            _logger.LogWarning("CallUser bị hủy: targetUserId là null hoặc rỗng.");
+            return;
+        }
+
         var callerId = GetCurrentUserId();
         _logger.LogInformation("Cuộc gọi đi từ {CallerId} tới {TargetUserId}", callerId, targetUserId);
 
@@ -87,6 +93,12 @@ public class ChatHub : Hub
     /// </summary>
     public async Task AcceptCall(string callerUserId, object answer)
     {
+        if (string.IsNullOrWhiteSpace(callerUserId))
+        {
+            _logger.LogWarning("AcceptCall bị hủy: callerUserId là null hoặc rỗng.");
+            return;
+        }
+
         var responderId = GetCurrentUserId();
         _logger.LogInformation("Cuộc gọi được chấp nhận bởi {ResponderId} từ người gọi {CallerUserId}", responderId, callerUserId);
 
@@ -103,6 +115,12 @@ public class ChatHub : Hub
     /// </summary>
     public async Task RejectCall(string callerUserId, string reason)
     {
+        if (string.IsNullOrWhiteSpace(callerUserId))
+        {
+            _logger.LogWarning("RejectCall bị hủy: callerUserId là null hoặc rỗng.");
+            return;
+        }
+
         var responderId = GetCurrentUserId();
         _logger.LogInformation("Cuộc gọi bị từ chối bởi {ResponderId}. Lý do: {Reason}", responderId, reason);
 
@@ -118,6 +136,12 @@ public class ChatHub : Hub
     /// </summary>
     public async Task EndCall(string partnerUserId)
     {
+        if (string.IsNullOrWhiteSpace(partnerUserId))
+        {
+            _logger.LogWarning("EndCall bị hủy: partnerUserId là null hoặc rỗng.");
+            return;
+        }
+
         var userId = GetCurrentUserId();
         _logger.LogInformation("Cuộc gọi kết thúc bởi {UserId}", userId);
 
@@ -132,6 +156,12 @@ public class ChatHub : Hub
     /// </summary>
     public async Task SendIceCandidate(string targetUserId, object candidate)
     {
+        if (string.IsNullOrWhiteSpace(targetUserId))
+        {
+            _logger.LogWarning("SendIceCandidate bị hủy: targetUserId là null hoặc rỗng.");
+            return;
+        }
+
         var senderId = GetCurrentUserId();
         await Clients.User(targetUserId).SendAsync("ReceiveIceCandidate", new
         {
