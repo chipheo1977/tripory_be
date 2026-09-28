@@ -7,44 +7,37 @@ namespace Tripory.Domain.Entities;
 public class Waypoint : EntityAuditBase<Guid>
 {
     public Guid ItineraryId { get; private set; }
-    public int Daynumber { get; private set; }
+    public int DayNumber { get; private set; }
     public int OrderIndex { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Address { get; private set; }
     public Wgs84Coordinate Coordinate { get; private set; } = null!;
     public string? Notes { get; private set; }
 
-    private Waypoint(
+    private Waypoint() { }
+
+    internal Waypoint(
         Guid id,
         Guid itineraryId,
-        int daynumber,
+        int dayNumber,
         int orderIndex,
         string name,
+        string? address,
         Wgs84Coordinate coordinate,
         string? notes
-        )
+    )
     {
         Id = id;
         ItineraryId = itineraryId;
-        Daynumber = daynumber;
+        DayNumber = dayNumber;
         OrderIndex = orderIndex;
-        Name = name;
+        Name = name.Trim();
+        Address = address?.Trim();
         Coordinate = coordinate;
-        Notes = notes;
+        Notes = notes?.Trim();
         CreatedAt = DateTimeOffset.UtcNow;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
-
-    // public static Result<Waypoint> Create(
-    //     Guid itineraryId,
-    //     int daynumber,
-    //     int orderIndex,
-    //     string name,
-    //     Wgs84Coordinate coordinate,
-    //     string? notes
-    // )
-    // {
-    // }
 
     internal Result UpdateInfo(
         string name,
@@ -73,7 +66,7 @@ public class Waypoint : EntityAuditBase<Guid>
 
     internal void MoveToDay(int newDayNumber, int newOrderIndex)
     {
-        Daynumber = newDayNumber;
+        DayNumber = newDayNumber;
         OrderIndex = newOrderIndex;
     }
 }
