@@ -4,6 +4,7 @@ using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Realtime;
 using Tripory.Application.Abstractions.Security;
+using Tripory.Domain.Entities;
 
 namespace Tripory.Application.UseCases.V1.Chat.Commands;
 
@@ -40,7 +41,7 @@ public class MarkConversationAsReadCommandHandler : ICommandHandler<MarkConversa
         if (conversation is null)
             return Result.Failure(new Error("Conversation.NotFound", "Không tìm thấy hội thoại."));
 
-        if (conversation.User1Id != currentUserId && conversation.User2Id != currentUserId)
+        if (!conversation.IsParticipant(currentUserId))
             return Result.Failure(new Error("Chat.Forbidden", "Bạn không thuộc cuộc trò chuyện này."));
 
         // Lấy tất cả tin nhắn đối phương gửi mà chưa đọc
@@ -57,10 +58,26 @@ public class MarkConversationAsReadCommandHandler : ICommandHandler<MarkConversa
         await _conversationRepository.UpdateAsync(conversation, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
-        // Bắn sự kiện Read Receipt đến đối phương
-        var partnerId = conversation.GetPartnerId(currentUserId);
-        await _chatNotificationService.SendMessageReadNotificationAsync(partnerId, conversation.Id, currentUserId, ct);
+        // Bắn sự kiện Read Receipt đến đối phương an toàn
+        await NotifyReadReceiptSafelyAsync(conversation, currentUserId, ct);
 
         return Result.Success();
+    }
+
+    private async Task NotifyReadReceiptSafelyAsync(
+        Conversation conversation,
+        Guid currentUserId,
+        CancellationToken ct)
+    {
+        try
+        {
+            var partnerId = conversation.GetPartnerId(currentUserId);
+            await _chatNotificationService.SendMessageReadNotificationAsync(partnerId, conversation.Id, currentUserId, ct);
+        }
+        catch
+        {
+            // Realtime notification thất bại (SignalR offline/disconnect)
+            // Không làm fail request vì trạng thái đã xem đã được lưu thành công vào CSDL.
+        }
     }
 }

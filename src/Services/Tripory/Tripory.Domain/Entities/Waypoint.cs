@@ -1,4 +1,3 @@
-using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.Domains.Abstractions;
 using Tripory.Domain.ValueObjects;
 
@@ -9,7 +8,7 @@ public class Waypoint : EntityAuditBase<Guid>
     public Guid ItineraryId { get; private set; }
     public int DayNumber { get; private set; }
     public int OrderIndex { get; private set; }
-    public string Name { get; private set; } = string.Empty;
+    public WaypointName Name { get; private set; } = null!;
     public string? Address { get; private set; }
     public Wgs84Coordinate Coordinate { get; private set; } = null!;
     public string? Notes { get; private set; }
@@ -21,7 +20,7 @@ public class Waypoint : EntityAuditBase<Guid>
         Guid itineraryId,
         int dayNumber,
         int orderIndex,
-        string name,
+        WaypointName name,
         string? address,
         Wgs84Coordinate coordinate,
         string? notes
@@ -31,7 +30,7 @@ public class Waypoint : EntityAuditBase<Guid>
         ItineraryId = itineraryId;
         DayNumber = dayNumber;
         OrderIndex = orderIndex;
-        Name = name.Trim();
+        Name = name;
         Address = address?.Trim();
         Coordinate = coordinate;
         Notes = notes?.Trim();
@@ -39,23 +38,18 @@ public class Waypoint : EntityAuditBase<Guid>
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    internal Result UpdateInfo(
-        string name,
+    internal void UpdateInfo(
+        WaypointName name,
         string? address,
         Wgs84Coordinate coordinate,
         string? notes
     )
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return Result.Failure(new Error("Waypoint.InvalidName", "Tên waypoint không được để trống."));
-
-        Name = name.Trim();
+        Name = name;
         Address = address?.Trim();
         Coordinate = coordinate;
         Notes = notes?.Trim();
         UpdatedAt = DateTimeOffset.UtcNow;
-
-        return Result.Success();
     }
 
     internal void UpdateOrderIndex(int orderIndex)
@@ -68,5 +62,6 @@ public class Waypoint : EntityAuditBase<Guid>
     {
         DayNumber = newDayNumber;
         OrderIndex = newOrderIndex;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

@@ -4,9 +4,9 @@ using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Realtime;
 using Tripory.Application.Abstractions.Security;
+using Tripory.Application.UseCases.V1.Chat.Extensions;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 using Tripory.Domain.Entities;
-using Tripory.Domain.Enums;
 
 namespace Tripory.Application.UseCases.V1.Chat.Commands;
 
@@ -33,8 +33,6 @@ public class SendTextMessageCommandHandler : ICommandHandler<SendTextMessageComm
         _currentUserService = currentUserService;
     }
 
-    // @TODO: Cân nhắc refactor lại blocks: validation, domain logic, persistence, notification.
-    // Check tương tự cho các handler khác.
     public async Task<Result<ChatMessageDto>> Handle(SendTextMessageCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
@@ -43,10 +41,10 @@ public class SendTextMessageCommandHandler : ICommandHandler<SendTextMessageComm
         var currentUserId = _currentUserService.UserId.Value;
 
         var conversation = await _conversationRepository.GetByIdAsync(request.ConversationId, ct);
-        if (conversation == null)
-            return Result.Failure<ChatMessageDto>(new Error("Conversation.NotFound", "Khong tìm thấy hội thoại."));
+        if (conversation is null)
+            return Result.Failure<ChatMessageDto>(new Error("Conversation.NotFound", "Không tìm thấy hội thoại."));
 
-        if (conversation.User1Id != currentUserId && conversation.User2Id != currentUserId)
+        if (!conversation.IsParticipant(currentUserId))
             return Result.Failure<ChatMessageDto>(new Error("Chat.Forbidden", "Bạn không thuộc cuộc trò chuyện này."));
         
         // Gọi Domain Entity để tự bảo vệ Invariant
@@ -62,23 +60,29 @@ public class SendTextMessageCommandHandler : ICommandHandler<SendTextMessageComm
         await _conversationRepository.UpdateAsync(conversation, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
-        var dto = new ChatMessageDto(
-            message.Id,
-            message.ConversationId,
-            message.SenderId,
-            message.Type,
-            message.Content,
-            message.VoiceUrl,
-            message.VoiceDuration,
-            message.CallLogData,
-            message.IsRead,
-            message.CreatedAt
-        );
+        var dto = message.ToDto();
 
         // Phát realtime notification đến người nhận
-        var recipientId = conversation.GetPartnerId(currentUserId);
-        await _chatNotificationService.SendMessageNotificationAsync(recipientId, dto, ct);
+        await NotifyRecipientSafelyAsync(conversation, currentUserId, dto, ct);
 
         return Result.Success(dto);
+    }
+
+    private async Task NotifyRecipientSafelyAsync(
+        Conversation conversation,
+        Guid senderId,
+        ChatMessageDto dto,
+        CancellationToken ct)
+    {
+        try
+        {
+            var recipientId = conversation.GetPartnerId(senderId);
+            await _chatNotificationService.SendMessageNotificationAsync(recipientId, dto, ct);
+        }
+        catch
+        {
+            // Realtime notification thất bại (SignalR offline/disconnect)
+            // Không làm fail request vì tin nhắn đã được lưu thành công vào CSDL.
+        }
     }
 }

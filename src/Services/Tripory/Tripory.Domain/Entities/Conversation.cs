@@ -97,11 +97,10 @@ public class Conversation : EntityAuditBase<Guid>, IAggregateRoot
         return currentUserId == User1Id ? UnreadCountUser1 : UnreadCountUser2;
     }
 
-    // @TODO: Kiểm tra xem người dùng có phải là thành viên của cuộc hội thoại hay không. Sửa hàng loạt sau.
-    // public bool IsParticipant(Guid userId)
-    // {
-    //     return userId == User1Id || userId == User2Id;
-    // }
+    public bool IsParticipant(Guid userId)
+    {
+        return userId == User1Id || userId == User2Id;
+    }
 
     // Single Source of Truth cho quy tắc chuẩn hóa cặp người dùng
     public static (Guid user1Id, Guid user2Id) NormalizeParticipants(Guid userA, Guid userB)

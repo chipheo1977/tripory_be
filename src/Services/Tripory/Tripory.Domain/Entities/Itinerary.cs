@@ -1,4 +1,3 @@
-
 using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.Domains.Abstractions;
 using BuildingBlocks.Core.Domains.Abstractions.DDD;
@@ -7,24 +6,23 @@ using Tripory.Domain.ValueObjects;
 
 namespace Tripory.Domain.Entities;
 
-// @TODO: Cần refactor tách valication & bussiness
-public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
+public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
 {
-    public const int MaxDescriptionLength = 1000;
-
     public Guid UserId { get; private set; }
     public ItineraryTitle Title { get; private set; } = null!;
-    public string? Description { get; private set; }
+    public ItineraryDescription? Description { get; private set; }
     public string? CoverImageUrl { get; private set; }
     public DateOnly? StartDate { get; private set; }
     public bool IsPublic { get; private set; }
     public double TotalDistanceKm { get; private set; }
 
     private Itinerary() { }
+
     private Itinerary(
         Guid id,
         Guid userId,
         ItineraryTitle title,
+        ItineraryDescription? description,
         bool isPublic,
         double totalDistanceKm,
         DateTimeOffset createdAt,
@@ -33,6 +31,7 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
         Id = id;
         UserId = userId;
         Title = title;
+        Description = description;
         IsPublic = isPublic;
         TotalDistanceKm = totalDistanceKm;
         CreatedAt = createdAt;
@@ -54,6 +53,7 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
             Guid.NewGuid(),
             userId,
             title,
+            null,
             false,
             0.0,
             DateTimeOffset.UtcNow,
@@ -66,17 +66,11 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
 
     public Result UpdateMetadata(
         ItineraryTitle title,
-        string? description,
+        ItineraryDescription? description,
         DateOnly? startDate,
         string? coverImageUrl
     )
     {
-        if (description != null && description.Length > MaxDescriptionLength)
-            return Result.Failure(new Error(
-                "Itinerary.DescriptionTooLong",
-                $"Mô tả không được vượt quá {MaxDescriptionLength} ký tự."
-            ));
-
         Title = title;
         Description = description;
         StartDate = startDate;
@@ -106,7 +100,7 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
 
     public Result<Waypoint> AddWaypoint(
         int dayNumber,
-        string name,
+        WaypointName name,
         string? address,
         Wgs84Coordinate coordinate,
         string? notes)
@@ -115,12 +109,6 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
             return Result.Failure<Waypoint>(new Error(
                 "Itinerary.InvalidDayNumber",
                 "Số thứ tự ngày phải lớn hơn hoặc bằng 1."
-            ));
-
-        if (string.IsNullOrWhiteSpace(name))
-            return Result.Failure<Waypoint>(new Error(
-                "Itinerary.WaypointNameEmpty",
-                "Tên điểm dừng chân không được để trống."
             ));
 
         // Tự động sinh mốc ngày nếu chưa có
@@ -143,6 +131,25 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
         UpdatedAt = DateTimeOffset.UtcNow;
 
         return Result.Success(waypoint);
+    }
+
+    public Result UpdateWaypoint(
+        Guid waypointId,
+        WaypointName name,
+        string? address,
+        Wgs84Coordinate coordinate,
+        string? notes)
+    {
+        var waypoint = _waypoints.FirstOrDefault(w => w.Id == waypointId);
+        if (waypoint is null)
+            return Result.Failure(new Error(
+                "Waypoint.NotFound",
+                $"Không tìm thấy điểm dừng chân có định danh '{waypointId}'."
+            ));
+
+        waypoint.UpdateInfo(name, address, coordinate, notes);
+        UpdatedAt = DateTimeOffset.UtcNow;
+        return Result.Success();
     }
 
     public Result RemoveWaypoint(Guid waypointId)
@@ -198,6 +205,20 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
         return Result.Success();
     }
 
+    public Result SetDaySubtitle(int dayNumber, string? subtitle)
+    {
+        if (dayNumber < 1)
+            return Result.Failure(new Error(
+                "Itinerary.InvalidDayNumber",
+                "Số thứ tự ngày phải lớn hơn hoặc bằng 1."
+            ));
+
+        var day = GetOrCreateDay(dayNumber);
+        day.SetSubtitle(subtitle);
+        UpdatedAt = DateTimeOffset.UtcNow;
+        return Result.Success();
+    }
+
     public void RecalculateDistances(IGisDistanceCalculator calculator)
     {
         double totalItineraryKm = 0.0;
@@ -233,5 +254,4 @@ public class Itinerary : EntityAuditBase<Guid>, IAggregateRoot
         _days.Add(newDay);
         return newDay;
     }
-
 }

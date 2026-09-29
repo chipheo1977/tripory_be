@@ -2,6 +2,7 @@ using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Security;
+using Tripory.Application.UseCases.V1.Chat.Extensions;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 
 namespace Tripory.Application.UseCases.V1.Chat.Queries;
@@ -34,25 +35,13 @@ public class GetMessagesQueryHandler : IQueryHandler<GetMessagesQuery, IReadOnly
             return Result.Failure<IReadOnlyList<ChatMessageDto>>(new Error("Conversation.NotFound", "Không tìm thấy hội thoại."));
 
         // Bảo vệ bảo mật: Người dùng phải là một trong 2 thành viên
-        // @TODO: Cần refactor. logic Bảo vệ bảo mật đặt ở đây đúng chưa?
-        if (conversation.User1Id != currentUserId && conversation.User2Id != currentUserId)
+        if (!conversation.IsParticipant(currentUserId))
             return Result.Failure<IReadOnlyList<ChatMessageDto>>(new Error("Chat.Forbidden", "Bạn không có quyền truy cập vào đoạn chat này."));
 
         var messages = await _chatMessageRepository.GetConversationMessagesAsync(
             request.ConversationId, request.Page, request.PageSize, ct);
 
-        var dtos = messages.Select(m => new ChatMessageDto(
-            m.Id,
-            m.ConversationId,
-            m.SenderId,
-            m.Type,
-            m.Content,
-            m.VoiceUrl,
-            m.VoiceDuration,
-            m.CallLogData,
-            m.IsRead,
-            m.CreatedAt
-        )).ToList();
+        var dtos = messages.Select(m => m.ToDto()).ToList();
 
         return Result.Success<IReadOnlyList<ChatMessageDto>>(dtos);
     }
