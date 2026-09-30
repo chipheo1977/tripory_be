@@ -4,6 +4,7 @@ using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Chat.Queries;
 using Tripory.Application.UseCases.V1.Chat.Responses;
+using Tripory.Domain.Errors;
 
 namespace Tripory.Application.UseCases.V1.Chat.Queries;
 
@@ -27,7 +28,7 @@ public class GetConversationsQueryHandler : IQueryHandler<GetConversationsQuery,
     public async Task<Result<IReadOnlyList<ConversationDto>>> Handle(GetConversationsQuery request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure<IReadOnlyList<ConversationDto>>(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập."));
+            return Result.Failure<IReadOnlyList<ConversationDto>>(DomainErrors.Auth.Unauthorized);
 
         var currentUserId = _currentUserService.UserId.Value;
         var conversations = await _conversationRepository.GetUserConversationsAsync(currentUserId, ct);

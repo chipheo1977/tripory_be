@@ -5,6 +5,7 @@ using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Realtime;
 using Tripory.Application.Abstractions.Security;
 using Tripory.Domain.Entities;
+using Tripory.Domain.Errors;
 
 namespace Tripory.Application.UseCases.V1.Chat.Commands;
 
@@ -33,16 +34,16 @@ public class MarkConversationAsReadCommandHandler : ICommandHandler<MarkConversa
     public async Task<Result> Handle(MarkConversationAsReadCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập."));
+            return Result.Failure(DomainErrors.Auth.Unauthorized);
 
         var currentUserId = _currentUserService.UserId.Value;
 
         var conversation = await _conversationRepository.GetByIdAsync(request.ConversationId, ct);
         if (conversation is null)
-            return Result.Failure(new Error("Conversation.NotFound", "Không tìm thấy hội thoại."));
+            return Result.Failure(DomainErrors.Chat.ConversationNotFound);
 
         if (!conversation.IsParticipant(currentUserId))
-            return Result.Failure(new Error("Chat.Forbidden", "Bạn không thuộc cuộc trò chuyện này."));
+            return Result.Failure(DomainErrors.Chat.Forbidden);
 
         // Lấy tất cả tin nhắn đối phương gửi mà chưa đọc
         var unreadMessages = await _chatMessageRepository.GetUnreadMessagesAsync(conversation.Id, currentUserId, ct);

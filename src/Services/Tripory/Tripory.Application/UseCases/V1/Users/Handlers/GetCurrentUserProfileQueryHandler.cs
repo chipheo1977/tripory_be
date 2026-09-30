@@ -5,6 +5,7 @@ using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Users.Queries;
 using Tripory.Application.UseCases.V1.Users.Responses;
 using Tripory.Domain.Enums;
+using Tripory.Domain.Errors;
 
 namespace Tripory.Application.UseCases.V1.Users.Handlers;
 
@@ -24,11 +25,11 @@ public class GetCurrentUserProfileQueryHandler : IQueryHandler<GetCurrentUserPro
     public async Task<Result<UserProfileResponse>> Handle(GetCurrentUserProfileQuery request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure<UserProfileResponse>(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập để xem thông tin."));
+            return Result.Failure<UserProfileResponse>(DomainErrors.Auth.Unauthorized);
 
         var user = await _userRepository.GetByIdAsync(_currentUserService.UserId.Value, ct);
         if (user is null)
-            return Result.Failure<UserProfileResponse>(new Error("User.NotFound", "Không tìm thấy người dùng."));
+            return Result.Failure<UserProfileResponse>(DomainErrors.Auth.UserNotFound);
 
         var roles = user.UserRoles.Select(r => ((UserRoleType)r.RoleId).ToString()).ToList();
 

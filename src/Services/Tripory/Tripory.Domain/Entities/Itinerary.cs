@@ -2,6 +2,7 @@ using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.Domains.Abstractions;
 using BuildingBlocks.Core.Domains.Abstractions.DDD;
 using Tripory.Domain.Abstractions.External;
+using Tripory.Domain.Errors;
 using Tripory.Domain.ValueObjects;
 
 namespace Tripory.Domain.Entities;
@@ -47,7 +48,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     public static Result<Itinerary> CreateQuickDraft(Guid userId, ItineraryTitle title)
     {
         if (userId == Guid.Empty)
-            return Result.Failure<Itinerary>(new Error("Itinerary.InvalidUserId", "UserId không được trống."));
+            return Result.Failure<Itinerary>(DomainErrors.Itinerary.InvalidUserId);
     
         var itinerary = new Itinerary(
             Guid.NewGuid(),
@@ -82,10 +83,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     public Result Publish()
     {
         if (_waypoints.Count == 0)
-            return Result.Failure(new Error(
-                "Itinerary.CannotPublishEmpty",
-                "Không thể xuất bản hành trình khi chưa có điểm dừng chân nào."
-            ));
+            return Result.Failure(DomainErrors.Itinerary.CannotPublishEmpty);
 
         IsPublic = true;
         UpdatedAt = DateTimeOffset.UtcNow;
@@ -106,10 +104,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         string? notes)
     {
         if (dayNumber < 1)
-            return Result.Failure<Waypoint>(new Error(
-                "Itinerary.InvalidDayNumber",
-                "Số thứ tự ngày phải lớn hơn hoặc bằng 1."
-            ));
+            return Result.Failure<Waypoint>(DomainErrors.Itinerary.InvalidDayNumber);
 
         // Tự động sinh mốc ngày nếu chưa có
         GetOrCreateDay(dayNumber);
@@ -142,10 +137,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     {
         var waypoint = _waypoints.FirstOrDefault(w => w.Id == waypointId);
         if (waypoint is null)
-            return Result.Failure(new Error(
-                "Waypoint.NotFound",
-                $"Không tìm thấy điểm dừng chân có định danh '{waypointId}'."
-            ));
+            return Result.Failure(DomainErrors.Waypoint.NotFoundWithId(waypointId));
 
         waypoint.UpdateInfo(name, address, coordinate, notes);
         UpdatedAt = DateTimeOffset.UtcNow;
@@ -156,10 +148,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     {
         var waypoint = _waypoints.FirstOrDefault(w => w.Id == waypointId);
         if (waypoint is null)
-            return Result.Failure(new Error(
-                "Waypoint.NotFound",
-                $"Không tìm thấy điểm dừng chân có định danh '{waypointId}'."
-            ));
+            return Result.Failure(DomainErrors.Waypoint.NotFoundWithId(waypointId));
 
         var dayNumber = waypoint.DayNumber;
         _waypoints.Remove(waypoint);
@@ -187,10 +176,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         if (orderedWaypointIds.Count != dayWaypoints.Count ||
             orderedWaypointIds.Any(id => dayWaypoints.All(w => w.Id != id)))
         {
-            return Result.Failure(new Error(
-                "Itinerary.InvalidReorderList",
-                "Danh sách điểm sắp xếp không khớp với dữ liệu hiện tại."
-            ));
+            return Result.Failure(DomainErrors.Itinerary.InvalidReorderList);
         }
 
         var waypointMap = dayWaypoints.ToDictionary(w => w.Id);
@@ -208,10 +194,7 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     public Result SetDaySubtitle(int dayNumber, string? subtitle)
     {
         if (dayNumber < 1)
-            return Result.Failure(new Error(
-                "Itinerary.InvalidDayNumber",
-                "Số thứ tự ngày phải lớn hơn hoặc bằng 1."
-            ));
+            return Result.Failure(DomainErrors.Itinerary.InvalidDayNumber);
 
         var day = GetOrCreateDay(dayNumber);
         day.SetSubtitle(subtitle);

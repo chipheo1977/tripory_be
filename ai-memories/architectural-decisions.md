@@ -70,5 +70,25 @@ Ghi nhận các quyết định kiến trúc, mẫu thiết kế và chuẩn cô
   * [`RefreshToken.cs`]
   * [`IUserRepository.cs`]
 
+---
+
+### [ADR-004] Chuẩn Hóa Lỗi Nghiệp Vụ (DomainErrors) & Đóng Gói Guard Xác Thực Sở Hữu (Repository Guard Extension)
+* **Ngày ghi nhận:** 2026-09-30
+* **Bối cảnh (Context):** 
+  * Khi mở rộng nhiều Command/Query Handlers trong Bounded Context (`Itineraries`, `Chat`, `Auth`, `Users`), các đoạn code trả về lỗi `new Error("Auth.Unauthorized", ...)` và `new Error("Itinerary.NotFound", ...)` bị lặp lại ở khắp mọi nơi (Magic Strings, DRY violation).
+  * Bộ 3 guard clause kiểm tra xác thực (Auth $\rightarrow$ Query & Existence $\rightarrow$ Ownership) bị lặp lại ở hầu hết các Handlers tác động lên aggregate `Itinerary`.
+* **Quyết định (Decision):** 
+  1. **Chuẩn hóa lỗi tập trung tại Domain:** Tạo `DomainErrors.cs` trong `Tripory.Domain/Errors/` gom nhóm theo module (`Auth`, `Itinerary`, `Waypoint`, `Chat`) trả về các thể hiện `Error` tĩnh hoặc hàm sinh lỗi có tham số định danh.
+  2. **Đóng gói Guard qua Extension Method:** Viết extension `GetOwnedItineraryAsync` trên `IItineraryRepository` tại tầng Application để gộp 3 bước (kiểm tra `currentUserId`, tìm nạp Entity theo ID kèm cờ `includeDetails`, kiểm tra quyền sở hữu `itinerary.UserId == currentUserId`) trả về `Result<Itinerary>`.
+* **Đánh đổi (Trade-offs):**
+  * *Ưu điểm:* Triệt tiêu toàn bộ magic strings; gom mã lỗi về single source of truth chuẩn DDD; rút gọn code các Handlers từ 10-15 dòng boilerplate guard xuống còn 1 dòng duy nhất; tối ưu truy vấn DB (1 query duy nhất).
+  * *Nhược điểm:* Cần dev chú ý truyền đúng tham số `includeDetails` khi UseCase yêu cầu thao tác sâu vào danh sách con (như `Publish` cần đếm waypoints).
+* **Files liên quan:**
+  * [`DomainErrors.cs`]
+  * [`ItineraryRepositoryExtensions.cs`]
+  * [`UpdateItineraryMetadataCommandHandler.cs`]
+  * [`PublishItineraryCommandHandler.cs`]
+  * [`DeleteItineraryCommandHandler.cs`]
+
 
 

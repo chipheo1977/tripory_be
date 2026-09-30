@@ -7,6 +7,7 @@ using Tripory.Application.Common.Models;
 using Tripory.Application.UseCases.V1.Auth.Commands;
 using Tripory.Application.UseCases.V1.Auth.Responses;
 using Tripory.Domain.Enums;
+using Tripory.Domain.Errors;
 using Tripory.Domain.ValueObjects;
 
 namespace Tripory.Application.UseCases.V1.Auth.Handlers;
@@ -34,19 +35,19 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
     {
         var emailResult = Email.Create(request.Email);
         if (emailResult.IsFailure)
-            return Result.Failure<AuthResponse>(new Error("Auth.InvalidCredentials", "Tài khoản hoặc mật khẩu không chính xác."));
+            return Result.Failure<AuthResponse>(DomainErrors.Auth.InvalidCredentials);
 
         var user = await _userRepository.GetByEmailAsync(emailResult.Value, ct);
         if (user is null)
-            return Result.Failure<AuthResponse>(new Error("Auth.InvalidCredentials", "Tài khoản hoặc mật khẩu không chính xác."));
+            return Result.Failure<AuthResponse>(DomainErrors.Auth.InvalidCredentials);
 
         if (user.Status == UserStatus.Banned)
-            return Result.Failure<AuthResponse>(new Error("Auth.UserBanned", $"Tài khoản đã bị khóa. Lý do: {user.BannedReason ?? "Vi phạm chính sách."}"));
+            return Result.Failure<AuthResponse>(DomainErrors.Auth.UserBanned(user.BannedReason));
 
         // Kiểm tra mật khẩu băm
         var isPasswordValid = _passwordHasher.VerifyPassword(request.Password, user.PasswordHash);
         if (!isPasswordValid)
-            return Result.Failure<AuthResponse>(new Error("Auth.InvalidCredentials", "Tài khoản hoặc mật khẩu không chính xác."));
+            return Result.Failure<AuthResponse>(DomainErrors.Auth.InvalidCredentials);
 
         // Nếu trạng thái là Inactive -> Tự động kích hoạt lại theo State Machine trong BRD
         if (user.Status == UserStatus.Inactive)

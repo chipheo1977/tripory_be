@@ -5,6 +5,8 @@ using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Auth.Commands;
 
+using Tripory.Domain.Errors;
+
 namespace Tripory.Application.UseCases.V1.Auth.Handlers;
 
 public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand>
@@ -29,15 +31,15 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
     public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập để thực hiện thao tác."));
+            return Result.Failure(DomainErrors.Auth.Unauthorized);
 
         var user = await _userRepository.GetByIdAsync(_currentUserService.UserId.Value, ct);
         if (user is null)
-            return Result.Failure(new Error("User.NotFound", "Không tìm thấy thông tin người dùng."));
+            return Result.Failure(DomainErrors.Auth.UserNotFound);
 
         // Xác thực mật khẩu cũ
         if (!_passwordHasher.VerifyPassword(request.CurrentPassword, user.PasswordHash))
-            return Result.Failure(new Error("Auth.InvalidCurrentPassword", "Mật khẩu hiện tại không chính xác."));
+            return Result.Failure(DomainErrors.Auth.InvalidCurrentPassword);
 
         // Băm mật khẩu mới & Cập nhật qua Domain Entity
         var newHash = _passwordHasher.HashPassword(request.NewPassword);

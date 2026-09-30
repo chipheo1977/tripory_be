@@ -7,6 +7,7 @@ using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Chat.Extensions;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 using Tripory.Domain.Entities;
+using Tripory.Domain.Errors;
 using Tripory.Domain.ValueObjects;
 
 namespace Tripory.Application.UseCases.V1.Chat.Commands;
@@ -36,16 +37,16 @@ public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionComman
     public async Task<Result<ChatMessageDto>> Handle(LogCallSessionCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure<ChatMessageDto>(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập."));
+            return Result.Failure<ChatMessageDto>(DomainErrors.Auth.Unauthorized);
 
         var currentUserId = _currentUserService.UserId.Value;
 
         var conversation = await _conversationRepository.GetByIdAsync(request.ConversationId, ct);
         if (conversation is null)
-            return Result.Failure<ChatMessageDto>(new Error("Conversation.NotFound", "Không tìm thấy hội thoại."));
+            return Result.Failure<ChatMessageDto>(DomainErrors.Chat.ConversationNotFound);
 
         if (!conversation.IsParticipant(currentUserId))
-            return Result.Failure<ChatMessageDto>(new Error("Chat.Forbidden", "Bạn không thuộc cuộc trò chuyện này."));
+            return Result.Failure<ChatMessageDto>(DomainErrors.Chat.Forbidden);
 
         var callLogData = new CallLogData(request.Status, request.DurationSeconds, request.Direction);
         var messageResult = ChatMessage.CreateCallLog(conversation.Id, currentUserId, callLogData);

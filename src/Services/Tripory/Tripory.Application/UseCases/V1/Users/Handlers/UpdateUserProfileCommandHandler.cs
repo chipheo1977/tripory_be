@@ -5,6 +5,8 @@ using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Users.Commands;
 
+using Tripory.Domain.Errors;
+
 namespace Tripory.Application.UseCases.V1.Users.Handlers;
 
 public class UpdateUserProfileCommandHandler : ICommandHandler<UpdateUserProfileCommand>
@@ -26,11 +28,11 @@ public class UpdateUserProfileCommandHandler : ICommandHandler<UpdateUserProfile
     public async Task<Result> Handle(UpdateUserProfileCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập."));
+            return Result.Failure(DomainErrors.Auth.Unauthorized);
 
         var user = await _userRepository.GetByIdAsync(_currentUserService.UserId.Value, ct);
         if (user is null)
-            return Result.Failure(new Error("User.NotFound", "Không tìm thấy người dùng."));
+            return Result.Failure(DomainErrors.Auth.UserNotFound);
 
         // Gọi phương thức Domain Entity để tự bảo vệ Invariant
         var updateResult = user.UpdateProfile(request.FullName, request.Bio, request.AvatarUrl);

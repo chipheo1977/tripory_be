@@ -8,6 +8,8 @@ using Tripory.Domain.Repositories;
 using Tripory.Domain.ValueObjects;
 using Tripory.Application.UseCases.V1.Itineraries.Extensions;
 
+using Tripory.Domain.Errors;
+
 namespace Tripory.Application.UseCases.V1.Itineraries.Handlers;
 
 public class CreateQuickDraftItineraryCommandHandler : ICommandHandler<CreateQuickDraftItineraryCommand, ItineraryDetailDto>
@@ -29,7 +31,7 @@ public class CreateQuickDraftItineraryCommandHandler : ICommandHandler<CreateQui
     public async Task<Result<ItineraryDetailDto>> Handle(CreateQuickDraftItineraryCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure<ItineraryDetailDto>(new Error("Auth.Unauthorized", "Yêu cầu đăng nhập."));
+            return Result.Failure<ItineraryDetailDto>(DomainErrors.Auth.Unauthorized);
     
         var currentUserId = _currentUserService.UserId.Value;
         var titleResult = ItineraryTitle.Create(request.Title);
