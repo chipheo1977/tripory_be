@@ -1,7 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using Tripory.Application.UseCases.V1.Itineraries.Responses;
 
-namespace Tripory.Application.UseCases.V1.Itineraries.Command;
+namespace Tripory.Application.UseCases.V1.Itineraries.Commands;
 
 public record UpdateItineraryMetadataCommand(
     Guid ItineraryId,

@@ -1,6 +1,6 @@
 using BuildingBlocks.Core.CQRS;
 
-namespace Tripory.Application.UseCases.V1.Itineraries.Command;
+namespace Tripory.Application.UseCases.V1.Itineraries.Commands;
 
 public record UpdateWaypointCommand(
     Guid ItineraryId,

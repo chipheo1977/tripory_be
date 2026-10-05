@@ -1,5 +1,5 @@
 using FluentValidation;
-using Tripory.Application.UseCases.V1.Itineraries.Responses;
+using Tripory.Application.UseCases.V1.Itineraries.Commands;
 
 namespace Tripory.Application.UseCases.V1.Itineraries.Validators;
 

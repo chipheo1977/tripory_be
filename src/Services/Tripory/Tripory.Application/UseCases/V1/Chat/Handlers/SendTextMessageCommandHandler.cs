@@ -4,15 +4,15 @@ using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Realtime;
 using Tripory.Application.Abstractions.Security;
+using Tripory.Application.UseCases.V1.Chat.Commands;
 using Tripory.Application.UseCases.V1.Chat.Extensions;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 using Tripory.Domain.Entities;
 using Tripory.Domain.Errors;
-using Tripory.Domain.ValueObjects;
 
-namespace Tripory.Application.UseCases.V1.Chat.Commands;
+namespace Tripory.Application.UseCases.V1.Chat.Handlers;
 
-public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionCommand, ChatMessageDto>
+public class SendTextMessageCommandHandler : ICommandHandler<SendTextMessageCommand, ChatMessageDto>
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly IChatMessageRepository _chatMessageRepository;
@@ -20,12 +20,13 @@ public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionComman
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
 
-    public LogCallSessionCommandHandler(
+    public SendTextMessageCommandHandler(
         IConversationRepository conversationRepository,
         IChatMessageRepository chatMessageRepository,
         IChatNotificationService chatNotificationService,
         IUnitOfWork unitOfWork,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService
+    )
     {
         _conversationRepository = conversationRepository;
         _chatMessageRepository = chatMessageRepository;
@@ -34,7 +35,7 @@ public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionComman
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<ChatMessageDto>> Handle(LogCallSessionCommand request, CancellationToken ct)
+    public async Task<Result<ChatMessageDto>> Handle(SendTextMessageCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
             return Result.Failure<ChatMessageDto>(DomainErrors.Auth.Unauthorized);
@@ -47,14 +48,15 @@ public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionComman
 
         if (!conversation.IsParticipant(currentUserId))
             return Result.Failure<ChatMessageDto>(DomainErrors.Chat.Forbidden);
-
-        var callLogData = new CallLogData(request.Status, request.DurationSeconds, request.Direction);
-        var messageResult = ChatMessage.CreateCallLog(conversation.Id, currentUserId, callLogData);
+        
+        // Gọi Domain Entity để tự bảo vệ Invariant
+        var messageResult = ChatMessage.CreateText(conversation.Id, currentUserId, request.Content);
         if (messageResult.IsFailure)
             return Result.Failure<ChatMessageDto>(messageResult.Error);
 
         var message = messageResult.Value;
 
+        // Lưu tin nhắn và cập nhật trạng thái hội thoại
         await _chatMessageRepository.AddAsync(message, ct);
         conversation.UpdateLastMessage(message.Id, message.Type, message.Content, message.CreatedAt, currentUserId);
         await _conversationRepository.UpdateAsync(conversation, ct);
@@ -62,7 +64,7 @@ public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionComman
 
         var dto = message.ToDto();
 
-        // Phát realtime notification an toàn đến người nhận
+        // Phát realtime notification đến người nhận
         await NotifyRecipientSafelyAsync(conversation, currentUserId, dto, ct);
 
         return Result.Success(dto);
@@ -82,7 +84,7 @@ public class LogCallSessionCommandHandler : ICommandHandler<LogCallSessionComman
         catch
         {
             // Realtime notification thất bại (SignalR offline/disconnect)
-            // Không làm fail request vì log cuộc gọi đã được lưu thành công vào CSDL.
+            // Không làm fail request vì tin nhắn đã được lưu thành công vào CSDL.
         }
     }
 }

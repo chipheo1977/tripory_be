@@ -79,7 +79,7 @@ Mọi developer và AI Agent bắt buộc phải tuân theo 7 pattern sau khi tr
 ### Pattern 1: Tổ chức UseCases theo Feature Vertical Slice (trong `Application`)
 Không gom chung toàn bộ commands hoặc queries vào một folder phẳng. Tổ chức theo từng feature domain:
 ```text
-Tripory.Application/UserCases/V1/Itineraries/
+Tripory.Application/UseCases/V1/Itineraries/
 ├── Commands/          # Records: CreateItineraryCommand, UpdateItineraryCommand...
 ├── Queries/           # Records: GetItineraryByIdQuery, GetDiscoveryFeedQuery...
 ├── Handlers/          # 1 file cho 1 handler: CreateItineraryCommandHandler.cs

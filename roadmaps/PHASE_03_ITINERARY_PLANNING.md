@@ -113,7 +113,7 @@
 ---
 
 ### BƯỚC 2: Tầng `Tripory.Application` (CQRS UseCases & Orchestration)
-* **Tổ chức thư mục:** `Tripory.Application/UserCases/V1/Itineraries/`
+* **Tổ chức thư mục:** `Tripory.Application/UseCases/V1/Itineraries/`
 * **Commands:**
   * `CreateQuickDraftItineraryCommand` (Title)
   * `UpdateItineraryMetadataCommand` (Id, Title, Description, StartDate, CoverImageUrl)

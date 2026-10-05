@@ -67,7 +67,7 @@ Kiến trúc backend của Tripory tuân thủ nghiêm ngặt **Mô hình Củ h
 * **Quy tắc vàng:** **Không chứa business rules** và **không trực tiếp chạm vào EF Core**.
 * **Cấu trúc (Tổ chức theo Feature Vertical Slice):**
   ```text
-  Tripory.Application/UserCases/V1/
+  Tripory.Application/UseCases/V1/
   ├── Itineraries/
   │   ├── Commands/
   │   ├── Queries/

@@ -6,7 +6,7 @@ using Tripory.Application.UseCases.V1.Chat.Queries;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 using Tripory.Domain.Errors;
 
-namespace Tripory.Application.UseCases.V1.Chat.Queries;
+namespace Tripory.Application.UseCases.V1.Chat.Handlers;
 
 public class GetConversationsQueryHandler : IQueryHandler<GetConversationsQuery, IReadOnlyList<ConversationDto>>
 {

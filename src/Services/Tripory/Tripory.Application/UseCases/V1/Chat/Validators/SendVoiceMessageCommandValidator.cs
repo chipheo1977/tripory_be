@@ -1,6 +1,7 @@
 using FluentValidation;
+using Tripory.Application.UseCases.V1.Chat.Commands;
 
-namespace Tripory.Application.UseCases.V1.Chat.Commands;
+namespace Tripory.Application.UseCases.V1.Chat.Validators;
 
 public class SendVoiceMessageCommandValidator : AbstractValidator<SendVoiceMessageCommand>
 {

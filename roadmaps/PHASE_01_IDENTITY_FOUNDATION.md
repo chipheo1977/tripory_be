@@ -133,7 +133,7 @@
 ### BƯỚC 4: Tầng `Tripory.Application` (UseCases & Orchestration)
 
 * **Trách nhiệm:** Điều phối luồng xử lý đăng ký, đăng nhập, cấp mới token, đổi mật khẩu.
-* **Cấu trúc thư mục:** `Tripory.Application/UserCases/V1/Auth/`
+* **Cấu trúc thư mục:** `Tripory.Application/UseCases/V1/Auth/`
   * `Commands/`:
     * `RegisterCommand(string Email, string Password, string FullName)`
     * `LoginCommand(string Email, string Password)`

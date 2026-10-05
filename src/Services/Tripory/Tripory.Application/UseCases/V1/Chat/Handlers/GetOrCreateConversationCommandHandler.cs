@@ -3,11 +3,12 @@ using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Security;
+using Tripory.Application.UseCases.V1.Chat.Commands;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 using Tripory.Domain.Entities;
 using Tripory.Domain.Errors;
 
-namespace Tripory.Application.UseCases.V1.Chat.Commands;
+namespace Tripory.Application.UseCases.V1.Chat.Handlers;
 
 public class GetOrCreateConversationCommandHandler : ICommandHandler<GetOrCreateConversationCommand, ConversationDto>
 {

@@ -3,10 +3,11 @@ using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Chat.Extensions;
+using Tripory.Application.UseCases.V1.Chat.Queries;
 using Tripory.Application.UseCases.V1.Chat.Responses;
 using Tripory.Domain.Errors;
 
-namespace Tripory.Application.UseCases.V1.Chat.Queries;
+namespace Tripory.Application.UseCases.V1.Chat.Handlers;
 
 public class GetMessagesQueryHandler : IQueryHandler<GetMessagesQuery, IReadOnlyList<ChatMessageDto>>
 {

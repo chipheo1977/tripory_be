@@ -55,3 +55,7 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Tool-generated home folders (NuGet / .NET SDK telemetry) accidentally created inside repo
+.local/
+Library/

@@ -2,6 +2,7 @@ using BuildingBlocks.Core.Abstractions.Persistence;
 using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Security;
+using Tripory.Application.UseCases.V1.Itineraries.Commands;
 using Tripory.Application.UseCases.V1.Itineraries.Responses;
 using Tripory.Domain.Entities;
 using Tripory.Domain.Repositories;

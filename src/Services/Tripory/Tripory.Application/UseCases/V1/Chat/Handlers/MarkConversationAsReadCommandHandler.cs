@@ -4,14 +4,13 @@ using BuildingBlocks.Core.CQRS;
 using Tripory.Application.Abstractions.Data;
 using Tripory.Application.Abstractions.Realtime;
 using Tripory.Application.Abstractions.Security;
-using Tripory.Application.UseCases.V1.Chat.Extensions;
-using Tripory.Application.UseCases.V1.Chat.Responses;
+using Tripory.Application.UseCases.V1.Chat.Commands;
 using Tripory.Domain.Entities;
 using Tripory.Domain.Errors;
 
-namespace Tripory.Application.UseCases.V1.Chat.Commands;
+namespace Tripory.Application.UseCases.V1.Chat.Handlers;
 
-public class SendVoiceMessageCommandHandler : ICommandHandler<SendVoiceMessageCommand, ChatMessageDto>
+public class MarkConversationAsReadCommandHandler : ICommandHandler<MarkConversationAsReadCommand>
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly IChatMessageRepository _chatMessageRepository;
@@ -19,7 +18,7 @@ public class SendVoiceMessageCommandHandler : ICommandHandler<SendVoiceMessageCo
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
 
-    public SendVoiceMessageCommandHandler(
+    public MarkConversationAsReadCommandHandler(
         IConversationRepository conversationRepository,
         IChatMessageRepository chatMessageRepository,
         IChatNotificationService chatNotificationService,
@@ -33,54 +32,54 @@ public class SendVoiceMessageCommandHandler : ICommandHandler<SendVoiceMessageCo
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<ChatMessageDto>> Handle(SendVoiceMessageCommand request, CancellationToken ct)
+    public async Task<Result> Handle(MarkConversationAsReadCommand request, CancellationToken ct)
     {
         if (!_currentUserService.UserId.HasValue)
-            return Result.Failure<ChatMessageDto>(DomainErrors.Auth.Unauthorized);
+            return Result.Failure(DomainErrors.Auth.Unauthorized);
 
         var currentUserId = _currentUserService.UserId.Value;
 
         var conversation = await _conversationRepository.GetByIdAsync(request.ConversationId, ct);
         if (conversation is null)
-            return Result.Failure<ChatMessageDto>(DomainErrors.Chat.ConversationNotFound);
+            return Result.Failure(DomainErrors.Chat.ConversationNotFound);
 
         if (!conversation.IsParticipant(currentUserId))
-            return Result.Failure<ChatMessageDto>(DomainErrors.Chat.Forbidden);
+            return Result.Failure(DomainErrors.Chat.Forbidden);
 
-        var messageResult = ChatMessage.CreateVoice(conversation.Id, currentUserId, request.VoiceUrl, request.VoiceDuration);
-        if (messageResult.IsFailure)
-            return Result.Failure<ChatMessageDto>(messageResult.Error);
+        // Lấy tất cả tin nhắn đối phương gửi mà chưa đọc
+        var unreadMessages = await _chatMessageRepository.GetUnreadMessagesAsync(conversation.Id, currentUserId, ct);
 
-        var message = messageResult.Value;
+        foreach (var msg in unreadMessages)
+        {
+            msg.MarkRead();
+        }
 
-        await _chatMessageRepository.AddAsync(message, ct);
-        conversation.UpdateLastMessage(message.Id, message.Type, message.Content, message.CreatedAt, currentUserId);
+        conversation.MarkAsRead(currentUserId);
+
+        await _chatMessageRepository.UpdateRangeAsync(unreadMessages, ct);
         await _conversationRepository.UpdateAsync(conversation, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
-        var dto = message.ToDto();
+        // Bắn sự kiện Read Receipt đến đối phương an toàn
+        await NotifyReadReceiptSafelyAsync(conversation, currentUserId, ct);
 
-        // Phát realtime notification an toàn đến người nhận
-        await NotifyRecipientSafelyAsync(conversation, currentUserId, dto, ct);
-
-        return Result.Success(dto);
+        return Result.Success();
     }
 
-    private async Task NotifyRecipientSafelyAsync(
+    private async Task NotifyReadReceiptSafelyAsync(
         Conversation conversation,
-        Guid senderId,
-        ChatMessageDto dto,
+        Guid currentUserId,
         CancellationToken ct)
     {
         try
         {
-            var recipientId = conversation.GetPartnerId(senderId);
-            await _chatNotificationService.SendMessageNotificationAsync(recipientId, dto, ct);
+            var partnerId = conversation.GetPartnerId(currentUserId);
+            await _chatNotificationService.SendMessageReadNotificationAsync(partnerId, conversation.Id, currentUserId, ct);
         }
         catch
         {
             // Realtime notification thất bại (SignalR offline/disconnect)
-            // Không làm fail request vì tin nhắn đã được lưu thành công vào CSDL.
+            // Không làm fail request vì trạng thái đã xem đã được lưu thành công vào CSDL.
         }
     }
 }
