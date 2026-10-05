@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tripory.Application.Abstractions.Data;
+using Tripory.Domain.Repositories;
 using Tripory.Persistence.Repositories;
 
 namespace Tripory.Persistence;
@@ -31,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+        services.AddScoped<IItineraryRepository, ItineraryRepository>();
 
         return services;
     }

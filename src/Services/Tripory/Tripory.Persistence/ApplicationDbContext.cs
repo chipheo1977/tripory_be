@@ -17,6 +17,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<Itinerary> Itineraries => Set<Itinerary>();
+    public DbSet<ItineraryDay> ItineraryDays  => Set<ItineraryDay>();
+    public DbSet<Waypoint> Waypoints => Set<Waypoint>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

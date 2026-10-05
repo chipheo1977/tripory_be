@@ -6,6 +6,8 @@ using Tripory.Infrastructure.Implementations.Security;
 using Tripory.Infrastructure.Implementations.Realtime;
 using Tripory.Application.Abstractions.Realtime;
 using Tripory.Application.Abstractions.Storage;
+using Tripory.Domain.Abstractions.External;
+using Tripory.Infrastructure.Implementations.Gis;
 using Tripory.Infrastructure.Implementations.Storage;
 
 
@@ -34,6 +36,9 @@ public static class DependencyInjection
 
         // 5. Audio / File Storage Service
         services.AddScoped<IAudioStorageService, LocalAudioStorageService>();
+
+        // 6. GIS & Geodesic Distance Service
+        services.AddSingleton<IGisDistanceCalculator, GisDistanceCalculator>();
 
         return services;
     }
