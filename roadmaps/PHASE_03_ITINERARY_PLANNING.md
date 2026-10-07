@@ -2,6 +2,7 @@
 
 > **Dự án:** Tripory Backend (`tripory_be`)  
 > **Giai đoạn:** Phase 03 – Core Itinerary Planning Engine (Map + Timeline)  
+> **Trạng thái:** ✅ **DONE** (đóng phase ngày 07/10/2026 theo quyết định của Tech Lead)  
 > **Lựa chọn kiến trúc:** Clean Architecture + DDD + CQRS + NetTopologySuite PostGIS (Kế thừa tiêu chuẩn từ `tc-ems-be` và ràng buộc trong `AGENTS.md`)  
 > **Nguồn đặc tả nghiệp vụ:** `../tripory/docs/traveler/ITINERARY_01_MAP+TIMELINE` (`create map+timeline.md`, `PT-01` đến `PT-05`) & `BRD_Travel_Itinerary_App.md` (Sprint 3.1)
 
@@ -51,10 +52,10 @@
 
 | Milestone | Nội dung trọng tâm | Trạng thái | Ghi chú |
 | :---: | :--- | :---: | :--- |
-| **3.1** | **Itinerary Core Aggregate & Quick Draft** | `[ ] Chưa bắt đầu` | Khởi tạo nhanh bản nháp, CRUD Metadata, List/Detail |
-| **3.2** | **Waypoints, PostGIS Geometry & Geodesic Distance** | `[ ] Chưa bắt đầu` | Thêm/Sửa/Xóa Waypoint, WGS84 Point, Haversine GIS calculator |
-| **3.3** | **Batch Reorder Engine & Day Management** | `[ ] Chưa bắt đầu` | Kéo thả thứ tự `order_index`, re-index khi xóa, Day Subtitles |
-| **3.4** | **Cover Image Upload & Publish Workflow** | `[ ] Chưa bắt đầu` | Upload ảnh bìa $\le 10\text{MB}$, Pre-publish validation, Demo seed |
+| **3.1** | **Itinerary Core Aggregate & Quick Draft** | `[x] Hoàn thành` | Khởi tạo nhanh bản nháp, CRUD Metadata, List/Detail |
+| **3.2** | **Waypoints, PostGIS Geometry & Geodesic Distance** | `[x] Hoàn thành` | Thêm/Sửa/Xóa Waypoint, WGS84 Point, Haversine GIS calculator |
+| **3.3** | **Batch Reorder Engine & Day Management** | `[x] Hoàn thành` | Kéo thả thứ tự `order_index`, re-index khi xóa, Day Subtitles |
+| **3.4** | **Cover Image Upload & Publish Workflow** | `[x] Đóng phase` | Upload ảnh bìa $\le 10\text{MB}$, Pre-publish validation, Demo seed |
 
 ---
 
@@ -180,3 +181,13 @@
 * `dotnet build` biên dịch sạch $100\%$ không lỗi, không warning (`TreatWarningsAsErrors=true`).
 * Migration PostGIS sinh schema chuẩn và ánh xạ tọa độ không gian chính xác.
 * Sẵn sàng chuyển giao cho Frontend tích hợp Mapbox / Leaflet và Dòng thời gian Timeline.
+
+---
+
+## ✅ Ghi Nhận Đóng Phase (07/10/2026)
+
+Phase 03 được Tech Lead đánh dấu **DONE**. Các hạng mục sau **chưa được triển khai / chưa kiểm chứng tại thời điểm đóng phase**, chuyển sang backlog:
+
+* `POST /api/v1/itineraries/{id}/cover-image` (`UploadCoverImageCommand` + storage ảnh bìa ≤ 10MB, JPEG/PNG/WEBP) và `POST /api/v1/itineraries/demo-reset` (seed Hà Nội – Hà Giang) — chưa có Command ở Application.
+* Domain Events (`ItineraryCreatedEvent`, `ItineraryPublishedEvent`, `WaypointAddedEvent`, `WaypointsReorderedEvent`).
+* Bước 6: chưa chạy thật 14 kịch bản test trong `GUIDE_STEP_05_API_LAYER.md` (qua `Tripory.API.http`) với PostgreSQL/PostGIS; chưa có `tests/`.

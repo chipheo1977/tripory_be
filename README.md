@@ -46,4 +46,4 @@ Kịch bản test API chi tiết: [LOCAL_RUN_AND_TEST_GUIDE.md](LOCAL_RUN_AND_TE
 |---|---|---|
 | 01 | Identity (Auth, User Profile) | [roadmaps/PHASE_01_IDENTITY_FOUNDATION.md](roadmaps/PHASE_01_IDENTITY_FOUNDATION.md) |
 | 02 | User Chat (Text, Voice, Call, SignalR) | [roadmaps/PHASE_02_USER_CHAT.md](roadmaps/PHASE_02_USER_CHAT.md) |
-| 03 | Itinerary Planning (Map + Timeline, PostGIS) | [roadmaps/PHASE_03_ITINERARY_PLANNING.md](roadmaps/PHASE_03_ITINERARY_PLANNING.md) |
+| 03 ✅ | Itinerary Planning (Map + Timeline, PostGIS) | [roadmaps/PHASE_03_ITINERARY_PLANNING.md](roadmaps/PHASE_03_ITINERARY_PLANNING.md) |

@@ -6,11 +6,8 @@ namespace Tripory.Persistence.Repositories;
 
 public class ItineraryRepository : RepositoryBase<Itinerary, Guid>, IItineraryRepository
 {
-    private readonly ApplicationDbContext _dbContext;
-
     public ItineraryRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
-        _dbContext = dbContext;
     }
 
     public Task<Itinerary?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)

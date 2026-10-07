@@ -1,6 +1,105 @@
-@Tripory.API_HostAddress = http://localhost:5251
+@host = http://localhost:5251
+# Dán accessToken lấy từ response của request "Login" bên dưới
+@token =
+# Dán id lấy từ response của request "Create" / "Add Waypoint"
+@itineraryId =
+@waypointId =
 
-GET {{Tripory.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### Login
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
 
-###
+{
+  "email": "user@example.com",
+  "password": "P@ssw0rd123"
+}
+
+### 01. Create quick draft (title sẽ được trim) -> 201 + Location header
+POST {{host}}/api/v1/itineraries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "title": "  Hà Nội - Hà Giang  " }
+
+### 02. Publish khi chưa có waypoint -> 400 Itinerary.CannotPublishEmpty
+PUT {{host}}/api/v1/itineraries/{{itineraryId}}/publish
+Authorization: Bearer {{token}}
+
+### 03. Add waypoint ngày 1 (lặp lại để có các điểm order_index 0,1,2)
+POST {{host}}/api/v1/itineraries/{{itineraryId}}/waypoints
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "dayNumber": 1,
+  "name": "Hồ Hoàn Kiếm",
+  "address": "Hoàn Kiếm, Hà Nội",
+  "longitude": 105.8522,
+  "latitude": 21.0285,
+  "notes": "Đi bộ buổi sáng"
+}
+
+### 04. Add waypoint toạ độ sai (longitude > 180) -> 400
+POST {{host}}/api/v1/itineraries/{{itineraryId}}/waypoints
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "dayNumber": 1, "name": "Điểm lỗi", "longitude": 200, "latitude": 21.0 }
+
+### 05. Get by id (không cần token nếu đã public; bản nháp không token -> 403)
+GET {{host}}/api/v1/itineraries/{{itineraryId}}
+
+### 06. Update metadata
+PUT {{host}}/api/v1/itineraries/{{itineraryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Hà Nội - Hà Giang 3N2Đ",
+  "description": "Hành trình khám phá miền Bắc",
+  "startDate": "2026-10-20",
+  "coverImageUrl": null
+}
+
+### 07. Update waypoint
+PUT {{host}}/api/v1/itineraries/{{itineraryId}}/waypoints/{{waypointId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Hồ Gươm",
+  "address": "Hoàn Kiếm, Hà Nội",
+  "longitude": 105.8522,
+  "latitude": 21.0285,
+  "notes": null
+}
+
+### 08. Reorder waypoints ngày 1 (gửi thiếu Id -> 400 Itinerary.InvalidReorderList)
+PUT {{host}}/api/v1/itineraries/{{itineraryId}}/days/1/reorder-waypoints
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "orderedWaypointIds": ["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"] }
+
+### 09. Set day subtitle
+PUT {{host}}/api/v1/itineraries/{{itineraryId}}/days/1/subtitle
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "subtitle": "Dạo phố cổ" }
+
+### 10. Delete waypoint (các điểm còn lại phải dồn order_index liên tục)
+DELETE {{host}}/api/v1/itineraries/{{itineraryId}}/waypoints/{{waypointId}}
+Authorization: Bearer {{token}}
+
+### 11. Publish -> 200
+PUT {{host}}/api/v1/itineraries/{{itineraryId}}/publish
+Authorization: Bearer {{token}}
+
+### 12. My itineraries (lọc đã xuất bản)
+GET {{host}}/api/v1/itineraries/mine?pageIndex=1&pageSize=10&isPublic=true
+Authorization: Bearer {{token}}
+
+### 13. Delete itinerary -> 200; Get lại -> 404
+DELETE {{host}}/api/v1/itineraries/{{itineraryId}}
+Authorization: Bearer {{token}}
