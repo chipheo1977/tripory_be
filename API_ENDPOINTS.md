@@ -1,6 +1,6 @@
 # API_ENDPOINTS.md – Tổng Hợp API Hiện Có Của Tripory Backend
 
-> **Cập nhật:** 05/10/2026  
+> **Cập nhật:** 09/10/2026  
 > **Base URL (local):** `http://localhost:5251` · `https://localhost:7071`  
 > **Định dạng response REST:** Mọi endpoint trả về `ApiResponse<T>` (thành công) hoặc `ApiResponse<object>` (thất bại, kèm `errorCode` + `message`).  
 > **Xác thực:** 🔒 = cần header `Authorization: Bearer <accessToken>` · 🌐 = public.
@@ -72,26 +72,45 @@
 
 ---
 
-## 6. Itinerary – `/api/v1/itineraries` ⏳ (Chưa có Controller)
+## 6. Itinerary – `/api/v1/itineraries` (🔒 trừ `GET /{id}`)
 
-Tầng Application đã có đủ Command/Query; Controller sẽ triển khai theo [GUIDE_STEP_05_API_LAYER.md](GUIDE_STEP_05_API_LAYER.md).
+Controller: `ItinerariesController` (`[Authorize]` cấp class). Body dùng Request contract tại `Contracts/V1/Itineraries/Requests`, map 1-1 sang Command/Query trong `Tripory.Application/UseCases/V1/Itineraries`. Route params có constraint: `{id:guid}`, `{waypointId:guid}`, `{dayNumber:int}`.
 
-| Verb | Route (dự kiến) | Auth | Command / Query |
-|---|---|:-:|---|
-| POST | `/` | 🔒 | `CreateQuickDraftItineraryCommand` |
-| GET | `/mine` | 🔒 | `GetMyItinerariesQuery` |
-| GET | `/{id}` | 🌐 | `GetItineraryByIdQuery` |
-| PUT | `/{id}` | 🔒 | `UpdateItineraryMetadataCommand` |
-| PUT | `/{id}/publish` | 🔒 | `PublishItineraryCommand` |
-| DELETE | `/{id}` | 🔒 | `DeleteItineraryCommand` |
-| POST | `/{id}/waypoints` | 🔒 | `AddWaypointCommand` |
-| PUT | `/{id}/waypoints/{waypointId}` | 🔒 | `UpdateWaypointCommand` |
-| DELETE | `/{id}/waypoints/{waypointId}` | 🔒 | `DeleteWaypointCommand` |
-| PUT | `/{id}/days/{dayNumber}/reorder-waypoints` | 🔒 | `ReorderWaypointsCommand` |
-| PUT | `/{id}/days/{dayNumber}/subtitle` | 🔒 | `SetDaySubtitleCommand` |
+| Verb | Route | Auth | Body / Query | Command / Query | Response `data` |
+|---|---|:-:|---|---|---|
+| POST | `/` | 🔒 | `CreateItineraryRequest { title }` | `CreateQuickDraftItineraryCommand` | `ItineraryDetailDto` (**201 Created** + header `Location`) |
+| GET | `/mine` | 🔒 | `?pageIndex=1&pageSize=10&isPublic=` | `GetMyItinerariesQuery` | `PagedResult<ItinerarySummaryDto>` |
+| GET | `/{id}` | 🌐 | — | `GetItineraryByIdQuery` | `ItineraryDetailDto` (gồm `days[]`, `waypoints[]`); 403 nếu hành trình không public |
+| PUT | `/{id}` | 🔒 | `UpdateItineraryMetadataRequest { title, description?, startDate?, coverImageUrl? }` | `UpdateItineraryMetadataCommand` | `{}` |
+| PUT | `/{id}/publish` | 🔒 | — | `PublishItineraryCommand` | `{}` |
+| DELETE | `/{id}` | 🔒 | — | `DeleteItineraryCommand` | `{}` |
+| POST | `/{id}/waypoints` | 🔒 | `AddWaypointRequest { dayNumber, name, address?, longitude, latitude, notes? }` | `AddWaypointCommand` | `WaypointDto` |
+| PUT | `/{id}/waypoints/{waypointId}` | 🔒 | `UpdateWaypointRequest { name, address?, longitude, latitude, notes? }` | `UpdateWaypointCommand` | `{}` |
+| DELETE | `/{id}/waypoints/{waypointId}` | 🔒 | — | `DeleteWaypointCommand` | `{}` |
+| PUT | `/{id}/days/{dayNumber}/reorder-waypoints` | 🔒 | `ReorderWaypointsRequest { orderedWaypointIds: Guid[] }` | `ReorderWaypointsCommand` | `{}` |
+| PUT | `/{id}/days/{dayNumber}/subtitle` | 🔒 | `SetDaySubtitleRequest { subtitle? }` | `SetDaySubtitleCommand` | `{}` |
+
+> Trừ `POST /` trả 201, các endpoint còn lại trả 200 khi thành công. Ảnh bìa hiện gửi dạng URL string qua `coverImageUrl`; chưa có endpoint upload ảnh bìa.
 
 ---
 
-## 7. Ghi Chú Không Đồng Nhất
+## 7. Response Envelope & Mã Lỗi
 
-* `AuthController` và `UsersController` bind body trực tiếp vào Command (`[FromBody] RegisterCommand`), trong khi `ChatController` dùng Request contract riêng (`Contracts/V1/Chat/Requests`). Nên thống nhất theo cách của Chat.
+`ApiResponse` (`Common/Responses/ApiResponse.cs`) gồm các field: `status`, `data`, `message`, `errorCode`, `timestamp`. Endpoint không có dữ liệu trả về `data: {}`.
+
+`ApiController.HandlerFailure` map lỗi sang HTTP status:
+
+| Loại lỗi | HTTP |
+|---|---|
+| `NotFound` | 404 |
+| `Conflict` / `AlreadyExists` | 409 |
+| `Unauthorized` | 401 |
+| `Forbidden` | 403 |
+| Còn lại (validation, business rule…) | 400 |
+
+---
+
+## 8. Ghi Chú Không Đồng Nhất
+
+* `AuthController` và `UsersController` bind body trực tiếp vào Command (`[FromBody] RegisterCommand`), trong khi `ChatController` và `ItinerariesController` dùng Request contract riêng (`Contracts/V1/*/Requests`). Nên chuyển Auth/Users theo cùng cách.
+* `ChatController.UploadVoiceMessage` thiếu `_logger.LogInformation(...)` đầu action (vi phạm AGENTS.md §6).
