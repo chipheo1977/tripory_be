@@ -7,8 +7,10 @@ namespace Tripory.Domain.ValueObjects;
 public sealed class Email : ValueObject
 {
     public const int MaxLength = 256;
+    private const string Pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+
     private static readonly Regex EmailRegex = new(
-        @"^[^@s]+@[^@s]+.[^@s]+$",
+        Pattern,
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public string Value { get; }

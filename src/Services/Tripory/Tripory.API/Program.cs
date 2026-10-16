@@ -8,6 +8,7 @@ using Tripory.Infrastructure;
 using Tripory.Infrastructure.Configurations;
 using Tripory.Infrastructure.Hubs;
 using Tripory.Persistence;
+using Tripory.API.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// 6. Cấu hình Rate Limiting cho các endpoint auth
+builder.Services.AddRateLimiting(builder.Configuration);
+
 var app = builder.Build();
 
 // Pipeline Middleware
@@ -123,6 +127,8 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseCors("AllowAll");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

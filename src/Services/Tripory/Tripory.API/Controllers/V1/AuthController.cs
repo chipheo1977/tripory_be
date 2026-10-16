@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tripory.API.Common.Responses;
 using Tripory.Application.UseCases.V1.Auth.Commands;
 using Tripory.Application.UseCases.V1.Auth.Responses;
+using Tripory.API.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Tripory.API.Controllers.V1;
 
@@ -18,9 +20,11 @@ public class AuthController : ApiController
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting(RateLimitPolicies.AuthRegister)]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken ct)
     {
         _logger.LogInformation("Nhận yêu cầu đăng ký tài khoản với email: {Email}", command.Email);
@@ -33,8 +37,10 @@ public class AuthController : ApiController
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting(RateLimitPolicies.AuthLogin)]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken ct)
     {
         _logger.LogInformation("Nhận yêu cầu đăng nhập từ email: {Email}", command.Email);
@@ -47,8 +53,10 @@ public class AuthController : ApiController
     }
 
     [HttpPost("refresh-token")]
+    [EnableRateLimiting(RateLimitPolicies.AuthRefreshToken)]
     [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken ct)
     {
         _logger.LogInformation("Nhận yêu cầu làm mới Access Token.");
