@@ -70,7 +70,7 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
         var roles = new[] { UserRoleType.Traveler.ToString() };
         var accessToken = _jwtTokenService.GenerateAccessToken(user, roles);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
-        var expiresAt = DateTimeOffset.UtcNow.AddDays(7);
+        var expiresAt = _jwtTokenService.GetRefreshTokenExpiresAt();
 
         // Lưu Refresh Token vào User Aggregate Root
         user.AddRefreshToken(refreshToken, expiresAt, ipAddress: null);

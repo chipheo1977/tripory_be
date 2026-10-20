@@ -68,7 +68,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
         // Sinh Tokens mới
         var accessToken = _jwtTokenService.GenerateAccessToken(user, roles);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
-        var expiresAt = DateTimeOffset.UtcNow.AddDays(7);
+        var expiresAt = _jwtTokenService.GetRefreshTokenExpiresAt();
 
         user.AddRefreshToken(refreshToken, expiresAt, ipAddress: null);
 

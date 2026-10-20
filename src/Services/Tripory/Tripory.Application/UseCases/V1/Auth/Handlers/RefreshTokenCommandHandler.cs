@@ -62,7 +62,7 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, T
 
         // Xoay vòng token: Cấp token mới & thu hồi token cũ
         var newRefreshToken = _jwtTokenService.GenerateRefreshToken();
-        var newExpiresAt = DateTimeOffset.UtcNow.AddDays(7);
+        var newExpiresAt = _jwtTokenService.GetRefreshTokenExpiresAt();
 
         user.RevokeRefreshToken(request.RefreshToken, ipAddress: null, replacedByToken: newRefreshToken);
         user.AddRefreshToken(newRefreshToken, newExpiresAt, ipAddress: null);
