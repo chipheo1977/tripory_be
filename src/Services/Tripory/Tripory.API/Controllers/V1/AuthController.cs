@@ -69,6 +69,23 @@ public class AuthController : ApiController
     }
 
     [Authorize]
+    [HttpPost("logout")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Logout([FromBody] LogoutCommand command, CancellationToken ct)
+    {
+        // Không log RefreshToken.
+        _logger.LogInformation("Nhận yêu cầu đăng xuất (thu hồi Refresh Token).");
+
+        var result = await Sender.Send(command, ct);
+        if (result.IsFailure)
+            return HandlerFailure(result);
+
+        return Ok(ApiResponse.Success("Đăng xuất thành công."));
+    }
+
+    [Authorize]
     [HttpPut("change-password")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
