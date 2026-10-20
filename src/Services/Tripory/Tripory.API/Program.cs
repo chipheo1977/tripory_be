@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Tripory.API.Cors;
 using Tripory.API.Middlewares;
 using Tripory.Application;
 using Tripory.Infrastructure;
@@ -97,22 +98,15 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// 5. Cấu hình CORS hỗ trợ SignalR AllowCredentials
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.SetIsOriginAllowed(_ => true)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
+// 5. Cấu hình CORS từ Cors:AllowedOrigins (hỗ trợ SignalR AllowCredentials)
+var corsOrigins = builder.Services.AddTriporyCors(builder.Configuration);
 
 // 6. Cấu hình Rate Limiting cho các endpoint auth
 builder.Services.AddRateLimiting(builder.Configuration);
 
 var app = builder.Build();
+
+app.WarnIfCorsIsOpen(corsOrigins);
 
 // Pipeline Middleware
 app.UseExceptionHandler();
@@ -126,7 +120,7 @@ if (app.Environment.IsDevelopment())
 // Cho phép truy cập file tĩnh (nghe audio từ thư mục uploads/voices)
 app.UseStaticFiles();
 
-app.UseCors("AllowAll");
+app.UseCors(CorsExtensions.PolicyName);
 
 app.UseRateLimiter();
 
