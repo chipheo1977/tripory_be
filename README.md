@@ -40,6 +40,36 @@ dotnet run --project src/Services/Tripory/Tripory.API   # http://localhost:5251
 
 Kịch bản test API chi tiết: [LOCAL_RUN_AND_TEST_GUIDE.md](LOCAL_RUN_AND_TEST_GUIDE.md).
 
+## Cấu hình CORS & JWT
+
+Cấu hình qua `appsettings*.json` hoặc biến môi trường (dùng `__` thay cho `:`).
+
+### CORS (`Cors:AllowedOrigins`)
+
+```json
+{
+  "Cors": {
+    "AllowedOrigins": [ "https://app.example.com", "http://localhost:3000" ]
+  }
+}
+```
+
+Env: `Cors__AllowedOrigins__0=https://app.example.com`, `Cors__AllowedOrigins__1=...`
+
+* Danh sách **không rỗng**: chỉ các origin đó được phép (kèm `AllowCredentials`, `AllowAnyHeader`, `AllowAnyMethod`; áp dụng cả negotiate của SignalR `/hubs/chat`). Không bao giờ kết hợp credentials với wildcard.
+* Mỗi origin phải là URL tuyệt đối `http`/`https` chỉ gồm scheme + host (+ port). Dấu `/` cuối được tự bỏ. Giá trị sai (vd `*`, `app.example.com`, có path) → app **không khởi động** và báo lỗi rõ ràng.
+* Danh sách **rỗng/thiếu**: giữ hành vi cũ (cho phép mọi origin). Ngoài môi trường Development, app ghi log `WARNING` lúc khởi động nhắc phải cấu hình.
+* `appsettings.json` để danh sách rỗng; `appsettings.Development.json` có sẵn `http://localhost:3000`, `https://localhost:3000`, `http://localhost:5173`. Origin production đặt qua biến môi trường, không commit.
+
+### JWT (`JwtOptions`)
+
+| Key | Mặc định (khi thiếu cấu hình) | `appsettings.json` | Ý nghĩa |
+|---|:-:|:-:|---|
+| `JwtOptions:ExpiryMinutes` | 15 | 60 | Thời hạn access token (phút) |
+| `JwtOptions:RefreshTokenExpiryDays` | 7 | 7 | Thời hạn refresh token (ngày); cũng là `expiresAt` trong `AuthResponse`/`TokenResponse` |
+
+Env: `JwtOptions__ExpiryMinutes=30`, `JwtOptions__RefreshTokenExpiryDays=14`. Cả hai phải lớn hơn 0, nếu không app không khởi động (`ValidateOnStart`).
+
 ## Lộ trình
 
 | Phase | Module | Tài liệu |

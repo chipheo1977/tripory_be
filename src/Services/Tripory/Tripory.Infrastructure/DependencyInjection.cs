@@ -20,7 +20,13 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         // 1. Bind JwtOptions
-        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .Validate(o => o.ExpiryMinutes > 0,
+                "JwtOptions: ExpiryMinutes phải lớn hơn 0.")
+            .Validate(o => o.RefreshTokenExpiryDays > 0,
+                "JwtOptions: RefreshTokenExpiryDays phải lớn hơn 0.")
+            .ValidateOnStart();
 
         // 2. HttpContextAccessor
         services.AddHttpContextAccessor();

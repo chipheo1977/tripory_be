@@ -14,7 +14,23 @@
 | POST | `/register` | 🌐 | `RegisterCommand` | Đăng ký tài khoản |
 | POST | `/login` | 🌐 | `LoginCommand` | Đăng nhập, trả về access + refresh token |
 | POST | `/refresh-token` | 🌐 | `RefreshTokenCommand` | Cấp lại cặp token mới |
+| POST | `/logout` | 🔒 | `LogoutCommand` | Đăng xuất: thu hồi 1 refresh token của chính user |
 | PUT | `/change-password` | 🔒 | `ChangePasswordCommand` | Đổi mật khẩu |
+
+### `POST /api/v1/auth/logout`
+
+Body:
+
+```json
+{ "refreshToken": "<refresh token cần thu hồi>" }
+```
+
+* Cần header `Authorization: Bearer <accessToken>`. Thiếu/sai access token → `401`.
+* Chỉ thu hồi **đúng token được gửi lên** và **chỉ khi token thuộc về user đang đăng nhập**. Không thu hồi token/thiết bị khác, không kích hoạt cơ chế Token Reuse Detection (`Token.Compromised`).
+* Idempotent: token không tồn tại / đã thu hồi / đã hết hạn / thuộc user khác đều trả về **cùng một response thành công** (`200`, message "Đăng xuất thành công.", `data: {}`), nên không lộ token có tồn tại hay của ai.
+* `refreshToken` rỗng hoặc dài quá 512 ký tự → `400` (validation).
+* Lưu ý: sau khi logout, nếu client vẫn gọi `/refresh-token` với token đó thì sẽ bị coi là tái sử dụng token đã thu hồi (`Token.Compromised`, thu hồi toàn bộ phiên của user). Client nên xóa token ngay sau khi logout.
+* Endpoint chỉ bổ sung thêm; client cũ không gọi vẫn hoạt động bình thường. Không dùng rate-limit policy auth.
 
 ---
 

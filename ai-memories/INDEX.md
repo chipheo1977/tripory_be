@@ -14,6 +14,7 @@ Mục lục tổng hợp các tri thức, quyết định thiết kế và bài 
 | [software-core-concepts.md](./software-core-concepts.md) | Các nguyên lý kỹ nghệ phần mềm nền tảng (SOLID, DRY, KISS, GRASP, Design Patterns...). |
 | [gotchas-and-bugs.md](./gotchas-and-bugs.md) | Các cạm bẫy kỹ thuật, lỗi đã gặp (EF Core, PostGIS, MediatR, DI...) và giải pháp xử lý. |
 | [auth-rate-limiting-extra-knowledge.md](./auth-rate-limiting-extra-knowledge.md) | Extra knowledge: rate limit endpoint auth (Sliding Window, partition theo IP), lấy IP thật sau BFF qua X-Forwarded-For + shared secret, secret lộ thì sao, giới hạn của cookie HttpOnly, Options Pattern, bẫy đã gặp. |
+| [auth-logout-cors-jwt-lifetime-extra-knowledge.md](./auth-logout-cors-jwt-lifetime-extra-knowledge.md) | Extra knowledge: logout thu hồi 1 refresh token (idempotent, không lộ token của ai), CORS theo cấu hình với AllowCredentials + SignalR, thời hạn token theo JwtOptions, bẫy Token.Compromised sau logout. |
 
 ---
 

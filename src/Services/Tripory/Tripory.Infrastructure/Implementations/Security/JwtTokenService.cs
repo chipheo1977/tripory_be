@@ -57,6 +57,11 @@ public class JwtTokenService : IJwtTokenService
         return Convert.ToBase64String(randomNumber);
     }
 
+    public DateTimeOffset GetRefreshTokenExpiresAt()
+    {
+        return DateTimeOffset.UtcNow.AddDays(_options.RefreshTokenExpiryDays);
+    }
+
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
         var tokenValidationParameters = new TokenValidationParameters
