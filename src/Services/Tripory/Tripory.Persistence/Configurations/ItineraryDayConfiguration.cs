@@ -11,6 +11,7 @@ public class ItineraryDayConfiguration : IEntityTypeConfiguration<ItineraryDay>
         builder.ToTable("itinerary_days", "itinerary");
 
         builder.HasKey(d => d.Id);
+        builder.Property(r => r.Id).ValueGeneratedNever();
 
         builder.Property(d => d.ItineraryId).IsRequired();
 
