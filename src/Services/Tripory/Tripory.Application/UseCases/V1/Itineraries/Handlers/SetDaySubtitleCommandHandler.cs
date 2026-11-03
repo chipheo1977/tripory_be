@@ -41,7 +41,6 @@ public class SetDaySubtitleCommandHandler : ICommandHandler<SetDaySubtitleComman
         if (result.IsFailure)
             return result;
 
-        await _itineraryRepository.UpdateAsync(itinerary);
         await _unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();

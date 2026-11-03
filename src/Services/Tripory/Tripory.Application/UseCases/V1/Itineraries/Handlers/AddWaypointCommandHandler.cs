@@ -58,7 +58,12 @@ public class AddWaypointCommandHandler : ICommandHandler<AddWaypointCommand, Way
             request.Notes
         );
 
+        if (addResult.IsFailure)
+            return Result.Failure<WaypointDto>(addResult.Error);
+
         itinerary.Value.RecalculateDistances(_gisCalculator);
+
+        await _unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(addResult.Value.ToDto());
     }

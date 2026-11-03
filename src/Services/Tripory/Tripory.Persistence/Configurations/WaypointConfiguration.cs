@@ -13,6 +13,7 @@ public class WaypointConfiguration : IEntityTypeConfiguration<Waypoint>
         builder.ToTable("waypoints", "itinerary");
 
         builder.HasKey(w => w.Id);
+        builder.Property(r => r.Id).ValueGeneratedNever();
 
         builder.Property(w => w.ItineraryId).IsRequired();
 
