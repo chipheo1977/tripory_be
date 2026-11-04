@@ -14,8 +14,15 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Chuỗi kết nối chứa mật khẩu nên không nằm trong appsettings: đặt bằng biến môi trường
+        // ConnectionStrings__DefaultConnection hoặc user-secrets khi phát triển.
         var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? "Host=localhost;Port=5432;Database=tripory_db;Username=postgres;Password=postgres";
+            ?? throw new InvalidOperationException(
+                "Chưa cấu hình ConnectionStrings:DefaultConnection. Đặt biến môi trường ConnectionStrings__DefaultConnection hoặc dùng user-secrets.");
+
+        // Ghi giá trị tham số SQL và lỗi chi tiết vào log chỉ khi cấu hình bật rõ ràng (chỉ Development).
+        var enableSensitiveLogging = bool.TryParse(configuration["Persistence:EnableSensitiveDataLogging"], out var enabled)
+            && enabled;
 
         services.AddDbContext<ApplicationDbContext>(options =>
         {
@@ -24,8 +31,11 @@ public static class DependencyInjection
                 npgsqlOptions.UseNetTopologySuite(); // Kích hoạt PostGIS spatial support
                 npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
             });
-            options.EnableSensitiveDataLogging();
-            options.EnableDetailedErrors();
+            if (enableSensitiveLogging)
+            {
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+            }
         });
 
         services.AddScoped<IUserRepository, UserRepository>();

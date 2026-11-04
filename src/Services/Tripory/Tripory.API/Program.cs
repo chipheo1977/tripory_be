@@ -29,6 +29,11 @@ builder.Services.AddProblemDetails();
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("Chưa cấu hình JwtOptions trong appsettings.json.");
 
+// SecretKey là bí mật nên không nằm trong appsettings: đặt bằng JwtOptions__SecretKey hoặc user-secrets.
+if (jwtOptions.SecretKey.Length < JwtOptions.MinSecretKeyLength)
+    throw new InvalidOperationException(
+        $"JwtOptions:SecretKey phải có ít nhất {JwtOptions.MinSecretKeyLength} ký tự. Đặt biến môi trường JwtOptions__SecretKey hoặc dùng user-secrets.");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -94,10 +94,10 @@ Controller: `ItinerariesController` (`[Authorize]` cấp class). Body dùng Requ
 
 | Verb | Route | Auth | Body / Query | Command / Query | Response `data` |
 |---|---|:-:|---|---|---|
-| POST | `/` | 🔒 | `CreateItineraryRequest { title }` | `CreateQuickDraftItineraryCommand` | `ItineraryDetailDto` (**201 Created** + header `Location`) |
+| POST | `/` | 🔒 | `CreateItineraryRequest { title, destinationCode, dayCount?, startDate?, interests? }` | `CreateQuickDraftItineraryCommand` | `ItineraryDetailDto` (**201 Created** + header `Location`); DTO có thêm `coverImages`, `selectedCoverIndex`, `destinationCode`, `interests` |
 | GET | `/mine` | 🔒 | `?pageIndex=1&pageSize=10&isPublic=` | `GetMyItinerariesQuery` | `PagedResult<ItinerarySummaryDto>` |
 | GET | `/{id}` | 🌐 | — | `GetItineraryByIdQuery` | `ItineraryDetailDto` (gồm `days[]`, `waypoints[]`); 403 nếu hành trình không public |
-| PUT | `/{id}` | 🔒 | `UpdateItineraryMetadataRequest { title, description?, startDate?, coverImageUrl? }` | `UpdateItineraryMetadataCommand` | `{}` |
+| PUT | `/{id}` | 🔒 | `UpdateItineraryMetadataRequest { title, description?, startDate?, coverImages?, selectedCoverIndex?, destinationCode?, interests? }` (`destinationCode`, `interests`, `coverImages` thiếu hoặc `null` thì giữ nguyên giá trị đã lưu; `coverImages: []` xóa hết ảnh bìa) | `UpdateItineraryMetadataCommand` | `{}` |
 | PUT | `/{id}/publish` | 🔒 | — | `PublishItineraryCommand` | `{}` |
 | DELETE | `/{id}` | 🔒 | — | `DeleteItineraryCommand` | `{}` |
 | POST | `/{id}/waypoints` | 🔒 | `AddWaypointRequest { dayNumber, name, address?, longitude, latitude, notes? }` | `AddWaypointCommand` | `WaypointDto` |
@@ -106,7 +106,7 @@ Controller: `ItinerariesController` (`[Authorize]` cấp class). Body dùng Requ
 | PUT | `/{id}/days/{dayNumber}/reorder-waypoints` | 🔒 | `ReorderWaypointsRequest { orderedWaypointIds: Guid[] }` | `ReorderWaypointsCommand` | `{}` |
 | PUT | `/{id}/days/{dayNumber}/subtitle` | 🔒 | `SetDaySubtitleRequest { subtitle? }` | `SetDaySubtitleCommand` | `{}` |
 
-> Trừ `POST /` trả 201, các endpoint còn lại trả 200 khi thành công. Ảnh bìa hiện gửi dạng URL string qua `coverImageUrl`; chưa có endpoint upload ảnh bìa.
+> Trừ `POST /` trả 201, các endpoint còn lại trả 200 khi thành công. Ảnh bìa là danh sách tối đa 5 URL `https` (mỗi URL tối đa 500 ký tự, không trùng) gửi qua `coverImages` cùng `selectedCoverIndex`; `coverImageUrl` trong response là ảnh đang hiển thị. Chưa có endpoint upload ảnh bìa.
 
 ---
 

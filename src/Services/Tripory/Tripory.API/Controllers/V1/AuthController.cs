@@ -27,7 +27,7 @@ public class AuthController : ApiController
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken ct)
     {
-        _logger.LogInformation("Nhận yêu cầu đăng ký tài khoản với email: {Email}", command.Email);
+        _logger.LogInformation("Nhận yêu cầu đăng ký tài khoản.");
 
         var result = await Sender.Send(command, ct);
         if (result.IsFailure)
@@ -43,7 +43,7 @@ public class AuthController : ApiController
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken ct)
     {
-        _logger.LogInformation("Nhận yêu cầu đăng nhập từ email: {Email}", command.Email);
+        _logger.LogInformation("Nhận yêu cầu đăng nhập.");
 
         var result = await Sender.Send(command, ct);
         if (result.IsFailure)

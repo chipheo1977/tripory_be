@@ -13,6 +13,9 @@ namespace Tripory.API.Controllers.V1;
 [Authorize]
 public class ItinerariesController : ApiController
 {
+    // Body hợp lệ lớn nhất chỉ vài KB (5 URL x 500 ký tự + mô tả 1000 ký tự); 32 KB là dư.
+    private const int MaxItineraryBodyBytes = 32 * 1024;
+
     private readonly ILogger<ItinerariesController> _logger;
 
     public ItinerariesController(ISender sender, ILogger<ItinerariesController> logger) : base(sender)
@@ -21,6 +24,7 @@ public class ItinerariesController : ApiController
     }
 
     [HttpPost]
+    [RequestSizeLimit(MaxItineraryBodyBytes)]
     [ProducesResponseType(typeof(ApiResponse<ItineraryDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -28,7 +32,13 @@ public class ItinerariesController : ApiController
     {
         _logger.LogInformation("Khởi tạo nhanh bản nháp hành trình với tiêu đề: {Title}", request.Title);
 
-        var result = await Sender.Send(new CreateQuickDraftItineraryCommand(request.Title), ct);
+        var result = await Sender.Send(new CreateQuickDraftItineraryCommand(
+            request.Title,
+            request.DestinationCode,
+            request.DayCount,
+            request.StartDate,
+            request.Interests
+        ), ct);
         if (result.IsFailure)
             return HandlerFailure(result);
 
@@ -76,8 +86,10 @@ public class ItinerariesController : ApiController
     }
 
     [HttpPut("{id:guid}")]
+    [RequestSizeLimit(MaxItineraryBodyBytes)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateMetadata(
@@ -88,7 +100,14 @@ public class ItinerariesController : ApiController
         _logger.LogInformation("Cập nhật thông tin tổng quan hành trình với ID: {ItineraryId}", id);
 
         var command = new UpdateItineraryMetadataCommand(
-            id, request.Title, request.Description, request.StartDate, request.CoverImageUrl);
+            id,
+            request.Title,
+            request.Description,
+            request.StartDate,
+            request.DestinationCode,
+            request.Interests,
+            request.CoverImages,
+            request.SelectedCoverIndex);
         var result = await Sender.Send(command, ct);
         if (result.IsFailure)
             return HandlerFailure(result);

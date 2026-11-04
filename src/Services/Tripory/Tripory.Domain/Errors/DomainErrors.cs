@@ -39,6 +39,11 @@ public static class DomainErrors
             "Không tìm thấy hành trình."
         );
 
+        public static readonly Error CoverSelectionInvalid = new(
+            "Itinerary.CoverSelectionInvalid",
+            "Ảnh bìa đang chọn không hợp lệ."
+        );
+
         public static Error NotFoundWithId(Guid id) => new(
             "Itinerary.NotFound",
             $"Không tìm thấy hành trình với mã '{id}'."

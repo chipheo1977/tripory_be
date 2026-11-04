@@ -45,8 +45,18 @@ public class UpdateItineraryMetadataCommandHandler : ICommandHandler<UpdateItine
         if (description.IsFailure)
             return Result.Failure(description.Error);
 
-        itinerary.UpdateMetadata(title.Value, description.Value, request.StartDate, request.CoverImageUrl);
-        await _itineraryRepository.UpdateAsync(itinerary);
+        var updateResult = itinerary.UpdateMetadata(
+            title.Value,
+            description.Value,
+            request.StartDate,
+            request.DestinationCode,
+            request.Interests,
+            request.TrimmedCoverImages,
+            request.SelectedCoverIndex);
+        if (updateResult.IsFailure)
+            return updateResult;
+
+        // Thực thể đã được EF theo dõi nên SaveChanges chỉ ghi các cột thật sự đổi.
         await _unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();

@@ -13,9 +13,14 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     public ItineraryTitle Title { get; private set; } = null!;
     public ItineraryDescription? Description { get; private set; }
     public string? CoverImageUrl { get; private set; }
+    public string[] CoverImageUrls { get; private set; } = [];
     public DateOnly? StartDate { get; private set; }
     public bool IsPublic { get; private set; }
     public double TotalDistanceKm { get; private set; }
+    public string? DestinationCode { get; private set; }
+    public string[] Interests { get; private set; } = [];
+
+    public int? SelectedCoverIndex => FindSelectedCoverIndex();
 
     private Itinerary() { }
 
@@ -27,7 +32,11 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         bool isPublic,
         double totalDistanceKm,
         DateTimeOffset createdAt,
-        DateTimeOffset updatedAt)
+        DateTimeOffset updatedAt,
+        DateOnly? startDate,
+        string? destinationCode,
+        string[]? interests
+    )
     {
         Id = id;
         UserId = userId;
@@ -37,6 +46,9 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         TotalDistanceKm = totalDistanceKm;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
+        StartDate = startDate;
+        DestinationCode = destinationCode;
+        Interests = interests ?? [];
     }
 
     private readonly List<ItineraryDay> _days = new();
@@ -45,11 +57,19 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
     private readonly List<Waypoint> _waypoints = new();
     public IReadOnlyCollection<Waypoint> Waypoints => _waypoints.AsReadOnly();
 
-    public static Result<Itinerary> CreateQuickDraft(Guid userId, ItineraryTitle title)
+    public static Result<Itinerary> CreateQuickDraft(
+        Guid userId,
+        ItineraryTitle title,
+        int? dayCount,
+        string? destinationCode,
+        DateOnly? startDate,
+        string[]? interests,
+        string[]? coverImageUrls
+    )
     {
         if (userId == Guid.Empty)
             return Result.Failure<Itinerary>(DomainErrors.Itinerary.InvalidUserId);
-    
+
         var itinerary = new Itinerary(
             Guid.NewGuid(),
             userId,
@@ -58,24 +78,60 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
             false,
             0.0,
             DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow
+            DateTimeOffset.UtcNow,
+            startDate,
+            destinationCode,
+            interests
         );
 
-        itinerary.GetOrCreateDay(1);
+        itinerary.CreateInitialDays(dayCount);
+
+        var coverResult = itinerary.SetCoverImages(coverImageUrls ?? [], 0);
+        if (coverResult.IsFailure)
+            return Result.Failure<Itinerary>(coverResult.Error);
+
         return Result.Success(itinerary);
+    }
+
+    public Result SetCoverImages(string[] coverImageUrls, int selectedIndex)
+    {
+        if (coverImageUrls.Length == 0)
+        {
+            CoverImageUrls = [];
+            CoverImageUrl = null;
+            return Result.Success();
+        }
+
+        if (selectedIndex < 0 || selectedIndex >= coverImageUrls.Length)
+            return Result.Failure(DomainErrors.Itinerary.CoverSelectionInvalid);
+
+        CoverImageUrls = coverImageUrls;
+        CoverImageUrl = coverImageUrls[selectedIndex];
+        return Result.Success();
     }
 
     public Result UpdateMetadata(
         ItineraryTitle title,
         ItineraryDescription? description,
         DateOnly? startDate,
-        string? coverImageUrl
+        string? destinationCode,
+        string[]? interests,
+        string[]? coverImageUrls,
+        int? selectedCoverIndex
     )
     {
+        if (coverImageUrls is not null)
+        {
+            var coverResult = SetCoverImages(coverImageUrls, selectedCoverIndex ?? -1);
+            if (coverResult.IsFailure)
+                return coverResult;
+        }
+
         Title = title;
         Description = description;
         StartDate = startDate;
-        CoverImageUrl = coverImageUrl;
+        DestinationCode = destinationCode ?? DestinationCode;
+        Interests = interests ?? Interests;
         UpdatedAt = DateTimeOffset.UtcNow;
         return Result.Success();
     }
@@ -106,7 +162,6 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         if (dayNumber < 1)
             return Result.Failure<Waypoint>(DomainErrors.Itinerary.InvalidDayNumber);
 
-        // Tự động sinh mốc ngày nếu chưa có
         GetOrCreateDay(dayNumber);
 
         var nextOrder = _waypoints.Count(w => w.DayNumber == dayNumber);
@@ -227,6 +282,15 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    private const int DefaultInitialDayCount = 1;
+
+    private void CreateInitialDays(int? dayCount)
+    {
+        var totalDays = dayCount ?? DefaultInitialDayCount;
+        for (var dayNumber = 1; dayNumber <= totalDays; dayNumber++)
+            GetOrCreateDay(dayNumber);
+    }
+
     private ItineraryDay GetOrCreateDay(int dayNumber, string? subtitle = null)
     {
         var existingDay = _days.FirstOrDefault(d => d.DayNumber == dayNumber);
@@ -236,5 +300,14 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         var newDay = new ItineraryDay(Guid.NewGuid(), Id, dayNumber, subtitle);
         _days.Add(newDay);
         return newDay;
+    }
+
+    private int? FindSelectedCoverIndex()
+    {
+        if (CoverImageUrl is null)
+            return null;
+
+        var index = Array.IndexOf(CoverImageUrls, CoverImageUrl);
+        return index >= 0 ? index : null;
     }
 }

@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.Abstractions.Persistence;
 using BuildingBlocks.Core.Abstractions.Shared;
 using BuildingBlocks.Core.CQRS;
+using Tripory.Application.Abstractions.DestinationCover;
 using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Itineraries.Commands;
 using Tripory.Application.UseCases.V1.Itineraries.Responses;
@@ -18,15 +19,19 @@ public class CreateQuickDraftItineraryCommandHandler : ICommandHandler<CreateQui
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
     private readonly IItineraryRepository _itineraryRepository;
+    private readonly IDestinationCoverProvider _destinationCoverProvider;
 
     public CreateQuickDraftItineraryCommandHandler(
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUserService,
-        IItineraryRepository itineraryRepository)
+        IItineraryRepository itineraryRepository,
+        IDestinationCoverProvider destinationCoverProvider
+    )
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
         _itineraryRepository = itineraryRepository;
+        _destinationCoverProvider = destinationCoverProvider;
     }
 
     public async Task<Result<ItineraryDetailDto>> Handle(CreateQuickDraftItineraryCommand request, CancellationToken ct)
@@ -39,7 +44,18 @@ public class CreateQuickDraftItineraryCommandHandler : ICommandHandler<CreateQui
         if (titleResult.IsFailure)
             return Result.Failure<ItineraryDetailDto>(titleResult.Error);
 
-        var itineraryResult = Itinerary.CreateQuickDraft(currentUserId, titleResult.Value);
+        var defaultCoverUrl = _destinationCoverProvider.GetDefaultCoverUrl(request.DestinationCode);
+        string[]? coverImageUrls = defaultCoverUrl is null ? null : [defaultCoverUrl];
+
+        var itineraryResult = Itinerary.CreateQuickDraft(
+            currentUserId,
+            titleResult.Value,
+            request.DayCount,
+            request.DestinationCode,
+            request.StartDate,
+            request.Interests,
+            coverImageUrls
+        );
         if (itineraryResult.IsFailure)
             return Result.Failure<ItineraryDetailDto>(itineraryResult.Error);
 

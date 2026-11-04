@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>tripory-api-5c1f0b7e-4a9d-4f1e-9d2a-7b6e3c8a2f10</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

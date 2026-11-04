@@ -35,6 +35,16 @@ public class ItineraryConfiguration : IEntityTypeConfiguration<Itinerary>
 
         builder.Property(i => i.TotalDistanceKm).HasDefaultValue(0.0).IsRequired();
 
+        builder.Property(i => i.DestinationCode).HasMaxLength(64);
+
+        builder.PrimitiveCollection(i => i.Interests)
+            .HasDefaultValueSql("'{}'")
+            .IsRequired();
+
+        builder.PrimitiveCollection(i => i.CoverImageUrls)
+            .HasDefaultValueSql("'{}'")
+            .IsRequired();
+
         // Global Query Filter tự động lọc bỏ bản ghi đã xóa mềm (Soft Delete)
         builder.HasQueryFilter(i => !i.IsDeleted);
 
