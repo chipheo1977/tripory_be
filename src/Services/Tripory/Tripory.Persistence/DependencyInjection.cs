@@ -16,9 +16,11 @@ public static class DependencyInjection
     {
         // Chuỗi kết nối chứa mật khẩu nên không nằm trong appsettings: đặt bằng biến môi trường
         // ConnectionStrings__DefaultConnection hoặc user-secrets khi phát triển.
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
+        // Chấp nhận cả key=value (docker-compose) lẫn URL postgresql:// (Neon).
+        var connectionString = NpgsqlConnectionStringNormalizer.Normalize(
+            configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException(
-                "Chưa cấu hình ConnectionStrings:DefaultConnection. Đặt biến môi trường ConnectionStrings__DefaultConnection hoặc dùng user-secrets.");
+                "Chưa cấu hình ConnectionStrings:DefaultConnection. Đặt biến môi trường ConnectionStrings__DefaultConnection hoặc dùng user-secrets."));
 
         // Ghi giá trị tham số SQL và lỗi chi tiết vào log chỉ khi cấu hình bật rõ ràng (chỉ Development).
         var enableSensitiveLogging = bool.TryParse(configuration["Persistence:EnableSensitiveDataLogging"], out var enabled)
