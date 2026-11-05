@@ -1,0 +1,16 @@
+**/bin
+**/obj
+**/.vs
+.git
+.github
+.kiro
+.agents
+.claude
+.planning
+**/*.user
+**/appsettings.Development.json
+Dockerfile
+.dockerignore
+docker-compose*.yml
+*.md
+!src/**/*.md
