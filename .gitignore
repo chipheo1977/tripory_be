@@ -59,3 +59,6 @@ nunit-*.xml
 # Tool-generated home folders (NuGet / .NET SDK telemetry) accidentally created inside repo
 .local/
 Library/
+.neon
+node_modules/
+.env.local
