@@ -17,6 +17,9 @@
 | POST | `/logout` | 🔒 | `LogoutCommand` | Đăng xuất: thu hồi 1 refresh token của chính user |
 | PUT | `/change-password` | 🔒 | `ChangePasswordCommand` | Đổi mật khẩu |
 
+### `POST /api/v1/auth/refresh-token`
+AccessToken (có thể đã hết hạn) sai chữ ký, sai định dạng hoặc ký bằng khóa khác → `401` với `errorCode` = `Token.UnauthorizedAccessToken` (FE nên xóa phiên và yêu cầu đăng nhập lại). Các mã `Token.*` khác giữ nguyên.
+
 ### `POST /api/v1/auth/logout`
 
 Body:

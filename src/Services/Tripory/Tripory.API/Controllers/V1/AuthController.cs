@@ -59,7 +59,7 @@ public class AuthController : ApiController
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken ct)
     {
-        _logger.LogInformation("Nhận yêu cầu làm mới Access Token.");
+        _logger.LogInformation("refresh-token - Nhận yêu cầu làm mới Access Token.");
 
         var result = await Sender.Send(command, ct);
         if (result.IsFailure)

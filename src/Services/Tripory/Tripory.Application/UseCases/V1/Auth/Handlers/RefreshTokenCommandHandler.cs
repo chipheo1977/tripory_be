@@ -7,6 +7,7 @@ using Tripory.Application.Abstractions.Security;
 using Tripory.Application.UseCases.V1.Auth.Commands;
 using Tripory.Application.UseCases.V1.Auth.Responses;
 using Tripory.Domain.Enums;
+using Tripory.Domain.Errors;
 
 namespace Tripory.Application.UseCases.V1.Auth.Handlers;
 
@@ -30,7 +31,7 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, T
     {
         var principal = _jwtTokenService.GetPrincipalFromExpiredToken(request.AccessToken);
         if (principal is null)
-            return Result.Failure<TokenResponse>(new Error("Token.InvalidAccessToken", "AccessToken không hợp lệ."));
+            return Result.Failure<TokenResponse>(DomainErrors.Token.UnauthorizedAccessToken);
 
         var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? principal.FindFirst("sub")?.Value;

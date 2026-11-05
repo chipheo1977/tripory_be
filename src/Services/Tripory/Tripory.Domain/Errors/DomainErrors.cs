@@ -32,6 +32,15 @@ public static class DomainErrors
         );
     }
 
+    public static class Token
+    {
+        // Chứa "Unauthorized" nên ApiController.HandlerFailure ánh xạ thành 401.
+        public static readonly Error UnauthorizedAccessToken = new(
+            "Token.UnauthorizedAccessToken",
+            "AccessToken không hợp lệ, vui lòng đăng nhập lại."
+        );
+    }
+
     public static class Itinerary
     {
         public static readonly Error NotFound = new(
