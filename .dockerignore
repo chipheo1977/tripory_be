@@ -8,6 +8,12 @@
 .claude
 .planning
 **/*.user
+node_modules
+.neon
+.env*
+neon.ts
+package.json
+package-lock.json
 **/appsettings.Development.json
 Dockerfile
 .dockerignore
