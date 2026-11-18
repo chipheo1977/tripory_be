@@ -45,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
         services.AddScoped<IItineraryRepository, ItineraryRepository>();
+        services.AddScoped<IItineraryLikeRepository, ItineraryLikeRepository>();
+        services.AddScoped<IItineraryCommentRepository, ItineraryCommentRepository>();
 
         return services;
     }

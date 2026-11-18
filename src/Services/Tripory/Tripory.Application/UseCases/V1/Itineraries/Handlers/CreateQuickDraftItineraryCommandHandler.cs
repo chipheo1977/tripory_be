@@ -62,6 +62,6 @@ public class CreateQuickDraftItineraryCommandHandler : ICommandHandler<CreateQui
         await _itineraryRepository.AddAsync(itineraryResult.Value, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(itineraryResult.Value.ToDetailDto());
+        return Result.Success(itineraryResult.Value.ToDetailDto(0, 0, false));
     }
 }

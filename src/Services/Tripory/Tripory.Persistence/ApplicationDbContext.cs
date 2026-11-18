@@ -19,6 +19,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<Itinerary> Itineraries => Set<Itinerary>();
     public DbSet<ItineraryDay> ItineraryDays  => Set<ItineraryDay>();
+    public DbSet<ItineraryComment> ItineraryComments => Set<ItineraryComment>();
+    public DbSet<ItineraryLike> ItineraryLikes => Set<ItineraryLike>();
     public DbSet<Waypoint> Waypoints => Set<Waypoint>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

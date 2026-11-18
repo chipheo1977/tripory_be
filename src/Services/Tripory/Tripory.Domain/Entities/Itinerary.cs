@@ -282,6 +282,10 @@ public class Itinerary : EntityFullAuditBase<Guid>, IAggregateRoot
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    public Result EnsureSocialAvailable() {
+        return IsPublic == false ? Result.Failure(DomainErrors.Social.DraftForbidden) : Result.Success();
+    }
+    
     private const int DefaultInitialDayCount = 1;
 
     private void CreateInitialDays(int? dayCount)

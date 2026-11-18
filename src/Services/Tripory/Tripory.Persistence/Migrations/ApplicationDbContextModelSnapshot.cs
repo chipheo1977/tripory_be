@@ -199,6 +199,32 @@ namespace Tripory.Persistence.Migrations
                     b.ToTable("itineraries", "itinerary");
                 });
 
+            modelBuilder.Entity("Tripory.Domain.Entities.ItineraryComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ItineraryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItineraryId", "CreatedAt", "Id");
+
+                    b.ToTable("itinerary_comments", "itinerary");
+                });
+
             modelBuilder.Entity("Tripory.Domain.Entities.ItineraryDay", b =>
                 {
                     b.Property<Guid>("Id")
@@ -225,6 +251,22 @@ namespace Tripory.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("itinerary_days", "itinerary");
+                });
+
+            modelBuilder.Entity("Tripory.Domain.Entities.ItineraryLike", b =>
+                {
+                    b.Property<Guid>("ItineraryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ItineraryId", "UserId");
+
+                    b.ToTable("itinerary_likes", "itinerary");
                 });
 
             modelBuilder.Entity("Tripory.Domain.Entities.RefreshToken", b =>
@@ -487,10 +529,28 @@ namespace Tripory.Persistence.Migrations
                     b.Navigation("CallLogData");
                 });
 
+            modelBuilder.Entity("Tripory.Domain.Entities.ItineraryComment", b =>
+                {
+                    b.HasOne("Tripory.Domain.Entities.Itinerary", null)
+                        .WithMany()
+                        .HasForeignKey("ItineraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Tripory.Domain.Entities.ItineraryDay", b =>
                 {
                     b.HasOne("Tripory.Domain.Entities.Itinerary", null)
                         .WithMany("Days")
+                        .HasForeignKey("ItineraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Tripory.Domain.Entities.ItineraryLike", b =>
+                {
+                    b.HasOne("Tripory.Domain.Entities.Itinerary", null)
+                        .WithMany()
                         .HasForeignKey("ItineraryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

@@ -11,7 +11,7 @@ using Tripory.Application.UseCases.V1.Itineraries.Responses;
 namespace Tripory.API.Controllers.V1;
 
 [Authorize]
-public class ItinerariesController : ApiController
+public partial class ItinerariesController : ApiController
 {
     // Body hợp lệ lớn nhất chỉ vài KB (5 URL x 500 ký tự + mô tả 1000 ký tự); 32 KB là dư.
     private const int MaxItineraryBodyBytes = 32 * 1024;

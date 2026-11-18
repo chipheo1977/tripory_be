@@ -106,7 +106,7 @@ builder.Services.AddSwaggerGen(c =>
 // 5. Cấu hình CORS từ Cors:AllowedOrigins (hỗ trợ SignalR AllowCredentials)
 var corsOrigins = builder.Services.AddTriporyCors(builder.Configuration);
 
-// 6. Cấu hình Rate Limiting cho các endpoint auth
+// 6. Cấu hình Rate Limiting cho các endpoint auth, social
 builder.Services.AddRateLimiting(builder.Configuration);
 
 var app = builder.Build();
@@ -127,9 +127,10 @@ app.UseStaticFiles();
 
 app.UseCors(CorsExtensions.PolicyName);
 
+app.UseAuthentication();
+
 app.UseRateLimiter();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

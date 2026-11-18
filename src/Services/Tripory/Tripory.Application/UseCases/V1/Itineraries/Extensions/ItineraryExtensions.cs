@@ -49,7 +49,12 @@ public static class ItineraryExtensions
         );
     }
 
-    public static ItineraryDetailDto ToDetailDto(this Itinerary itinerary)
+    public static ItineraryDetailDto ToDetailDto(
+        this Itinerary itinerary,
+        int likeCount = 0,
+        int commentCount = 0,
+        bool likedByMe = false
+    )
     {
         return new ItineraryDetailDto(
             itinerary.Id,
@@ -67,7 +72,11 @@ public static class ItineraryExtensions
             itinerary.CreatedAt,
             itinerary.UpdatedAt,
             itinerary.Days.Select(d => d.ToDto()).ToList(),
-            itinerary.Waypoints.Select(w => w.ToDto()).ToList()
+            itinerary.Waypoints.Select(w => w.ToDto()).ToList(),
+            likeCount,
+            commentCount,
+            likedByMe
+
         );
     }
 }

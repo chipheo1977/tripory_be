@@ -84,6 +84,42 @@ public static class DomainErrors
         );
     }
 
+    public static class Social
+    {
+        public static readonly Error DraftForbidden = new(
+            "Social.DraftForbidden",
+            "Lịch trình này chưa được xuất bản."
+        );
+    }
+
+    public static class Comment
+    {
+        public static readonly Error ContentRequired = new(
+            "Comment.ContentRequired",
+            "Vui lòng nhập nội dung bình luận."
+        );
+
+        public static readonly Error ContentTooLong = new(
+            "Comment.ContentTooLong",
+            "Bình luận tối đa 500 ký tự."
+        );
+
+        public static readonly Error NotFound = new(
+            "Comment.NotFound",
+            "Bình luận không còn tồn tại."
+        );
+
+        public static readonly Error DeleteForbidden = new(
+            "Comment.DeleteForbidden",
+            "Bạn không có quyền xóa bình luận này."
+        );
+
+        public static readonly Error PageInvalid = new(
+            "Comment.PageInvalid",
+            "Tham số phân trang không hợp lệ."
+        );
+    }
+
     public static class Waypoint
     {
         public static readonly Error NotFound = new(

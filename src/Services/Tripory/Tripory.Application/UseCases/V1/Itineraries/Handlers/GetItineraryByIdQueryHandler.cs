@@ -12,33 +12,45 @@ namespace Tripory.Application.UseCases.V1.Itineraries.Handlers;
 public class GetItineraryByIdQueryHandler : IQueryHandler<GetItineraryByIdQuery, ItineraryDetailDto>
 {
     private readonly IItineraryRepository _itineraryRepository;
+    private readonly IItineraryLikeRepository _itineraryLikeRepository;
+    private readonly IItineraryCommentRepository _itineraryCommentRepository;
     private readonly ICurrentUserService _currentUserService;
 
     public GetItineraryByIdQueryHandler(
         IItineraryRepository itineraryRepository,
+        IItineraryLikeRepository itineraryLikeRepository,
+        IItineraryCommentRepository itineraryCommentRepository,
         ICurrentUserService currentUserService)
     {
         _itineraryRepository = itineraryRepository;
+        _itineraryLikeRepository = itineraryLikeRepository;
+        _itineraryCommentRepository = itineraryCommentRepository;
         _currentUserService = currentUserService;
     }
 
     public async Task<Result<ItineraryDetailDto>> Handle(GetItineraryByIdQuery request, CancellationToken ct)
     {
         var itinerary = await _itineraryRepository.GetByIdWithDetailsAsync(request.ItineraryId, ct);
+
         if (itinerary is null)
             return Result.Failure<ItineraryDetailDto>(DomainErrors.Itinerary.NotFound);
 
-        // Quy tắc bảo mật phân quyền truy cập:
-        // - Chuyến đi công khai (IsPublic == true): Bất kỳ ai cũng có quyền đọc.
-        // - Chuyến đi bản nháp (IsPublic == false): Chỉ DUY NHẤT tác giả mới được phép đọc.
-        if (!itinerary.IsPublic)
-        {
-            if (!_currentUserService.UserId.HasValue || itinerary.UserId != _currentUserService.UserId.Value)
-            {
-                return Result.Failure<ItineraryDetailDto>(DomainErrors.Itinerary.Forbidden);
-            }
-        }
+        var currentUserId = _currentUserService.UserId;
 
-        return Result.Success(itinerary.ToDetailDto());
+        var isOwner = currentUserId == itinerary.UserId;
+        if (!itinerary.IsPublic && !isOwner)
+            return Result.Failure<ItineraryDetailDto>(DomainErrors.Itinerary.Forbidden);
+
+        if (!itinerary.IsPublic)
+            return Result.Success(itinerary.ToDetailDto());
+
+        var likeCount = await _itineraryLikeRepository.CountByItineraryAsync(itinerary.Id, ct);
+        var commentCount = await _itineraryCommentRepository.CountByItineraryAsync(itinerary.Id, ct);
+
+        // Khách luôn likedByMe = false, không gọi DB.
+        var likedByMe = currentUserId is Guid userId
+            && await _itineraryLikeRepository.ExistsAsync(itinerary.Id, userId, ct);
+
+        return Result.Success(itinerary.ToDetailDto(likeCount, commentCount, likedByMe));
     }
 }

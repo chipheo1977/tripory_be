@@ -16,5 +16,8 @@ public record ItineraryDetailDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     IReadOnlyList<ItineraryDayDto> Days,
-    IReadOnlyList<WaypointDto> Waypoints
+    IReadOnlyList<WaypointDto> Waypoints,
+    int LikeCount,
+    int CommentCount,
+    bool LikedByMe
 );

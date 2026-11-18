@@ -13,4 +13,8 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken ct = default);
     Task UpdateAsync(User user, CancellationToken ct = default);
     Task<IReadOnlyList<User>> SearchUsersAsync(string? search = null, int limit = 50, CancellationToken ct = default);
+    Task<IReadOnlyList<UserSummary>> GetSummariesByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken ct = default
+    );
 }

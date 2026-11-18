@@ -96,4 +96,26 @@ public class UserRepository : IUserRepository
             .Take(limit)
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyList<UserSummary>> GetSummariesByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    {
+        if (ids == null || ids.Count <= 0) {
+            return [];
+        }
+
+        var distinctIds = ids.Distinct().ToArray();
+
+        return await _context.Users
+            .AsNoTracking()
+            .Where(u => distinctIds.Contains(u.Id))
+            .Select((u) => new UserSummary(
+                u.Id,
+                u.FullName,
+                u.Handle,
+                u.AvatarUrl
+            ))
+            .ToListAsync(ct);
+
+        throw new NotImplementedException();
+    }
 }
